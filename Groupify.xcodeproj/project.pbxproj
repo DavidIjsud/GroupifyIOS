@@ -29,9 +29,22 @@
 		E488F29B2F57799B00E7FE85 /* GroupifyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GroupifyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E402BE7E2F57CDB900CC8A0F /* Exceptions for "Groupify" folder in "Groupify" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = E488F2832F57799A00E7FE85 /* Groupify */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E488F2862F57799A00E7FE85 /* Groupify */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E402BE7E2F57CDB900CC8A0F /* Exceptions for "Groupify" folder in "Groupify" target */,
+			);
 			path = Groupify;
 			sourceTree = "<group>";
 		};
@@ -398,6 +411,8 @@
 				DEVELOPMENT_TEAM = DATKZA8T3N;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Groupify/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Groupify needs camera access to take a photo for matching.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -433,6 +448,8 @@
 				DEVELOPMENT_TEAM = DATKZA8T3N;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Groupify/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Groupify needs camera access to take a photo for matching.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

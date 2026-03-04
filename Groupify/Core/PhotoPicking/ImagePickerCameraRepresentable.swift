@@ -1,3 +1,4 @@
+import AVFoundation
 import SwiftUI
 import UIKit
 
@@ -20,6 +21,10 @@ struct ImagePickerCameraRepresentable: UIViewControllerRepresentable {
         Coordinator(onPicked: onPicked, onCancelled: onCancelled)
     }
 
+    /// Minimum pixel dimension to accept — anything smaller is likely a
+    /// black frame produced when camera permission was denied.
+    private static let minimumImageDimension: CGFloat = 10
+
     final class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
         let onPicked: (UIImage) -> Void
         let onCancelled: () -> Void
@@ -34,11 +39,21 @@ struct ImagePickerCameraRepresentable: UIViewControllerRepresentable {
             didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
         ) {
             picker.dismiss(animated: true)
-            if let image = info[.originalImage] as? UIImage {
-                onPicked(image)
-            } else {
+
+            // Safety: reject if camera permission was revoked mid-session.
+            guard AVCaptureDevice.authorizationStatus(for: .video) == .authorized else {
                 onCancelled()
+                return
             }
+
+            guard let image = info[.originalImage] as? UIImage,
+                  image.size.width >= ImagePickerCameraRepresentable.minimumImageDimension,
+                  image.size.height >= ImagePickerCameraRepresentable.minimumImageDimension else {
+                onCancelled()
+                return
+            }
+
+            onPicked(image)
         }
 
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {

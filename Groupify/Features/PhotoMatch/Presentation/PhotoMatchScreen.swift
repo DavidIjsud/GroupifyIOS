@@ -168,19 +168,35 @@ struct PhotoMatchScreen: View {
     }
 
     private func messageBanner(_ text: String) -> some View {
-        HStack {
-            Text(text)
-                .font(.subheadline)
-                .foregroundColor(.white)
-                .lineLimit(2)
+        VStack(spacing: 10) {
+            HStack {
+                Text(text)
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+                    .lineLimit(2)
 
-            Spacer()
+                Spacer()
 
-            Button {
-                viewModel.onDismissMessage()
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .foregroundColor(Theme.secondaryText)
+                Button {
+                    viewModel.onDismissMessage()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(Theme.secondaryText)
+                }
+            }
+
+            if viewModel.state.showSettingsAction {
+                Button {
+                    viewModel.onOpenSettingsTapped()
+                } label: {
+                    Text("Open Settings")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(Theme.accent)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .background(Theme.accent.opacity(0.15))
+                        .cornerRadius(8)
+                }
             }
         }
         .padding(14)
