@@ -53,6 +53,14 @@ struct PhotoMatchScreen: View {
                 onCancelled: { viewModel.onPickCancelled() }
             )
         }
+        // Camera sheet
+        .sheet(isPresented: $viewModel.state.isTakingPhoto) {
+            ImagePickerCameraRepresentable(
+                onPicked: { viewModel.onCameraPicked(image: $0) },
+                onCancelled: { viewModel.onCameraCancelled() }
+            )
+            .ignoresSafeArea()
+        }
         // iOS 16+ picker overlay (PhotosPicker is view-based)
         .overlay {
             if isIOS16Available {

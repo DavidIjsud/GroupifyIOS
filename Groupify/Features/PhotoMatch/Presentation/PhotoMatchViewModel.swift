@@ -6,9 +6,11 @@ import UIKit
 struct PhotoMatchUiState {
     var selectedImage: UIImage?
     var isPicking: Bool = false
+    var isTakingPhoto: Bool = false
     var userMessage: String?
 
     var hasPhoto: Bool { selectedImage != nil }
+    var isCameraAvailable: Bool { UIImagePickerController.isSourceTypeAvailable(.camera) }
 }
 
 // MARK: - ViewModel
@@ -32,7 +34,20 @@ final class PhotoMatchViewModel: ObservableObject {
     }
 
     func onTapTakePhoto() {
-        state.userMessage = "Camera not implemented yet"
+        guard state.isCameraAvailable else {
+            state.userMessage = "Camera not available on this device"
+            return
+        }
+        state.isTakingPhoto = true
+    }
+
+    func onCameraPicked(image: UIImage) {
+        state.selectedImage = image
+        state.isTakingPhoto = false
+    }
+
+    func onCameraCancelled() {
+        state.isTakingPhoto = false
     }
 
     func onTapStartDetection() {
