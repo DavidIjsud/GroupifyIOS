@@ -195,7 +195,6 @@ struct PhotoMatchScreen: View {
                 onPicked: { viewModel.onPickedPhoto(image: $0) },
                 onCancelled: { viewModel.onPickCancelled() }
             )
-            .allowsHitTesting(false)
         }
     }
 }
