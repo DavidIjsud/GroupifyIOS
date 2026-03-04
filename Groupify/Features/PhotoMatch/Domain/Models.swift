@@ -38,6 +38,13 @@ struct IndexedFaceRecord: Codable, Sendable {
     let dateIndexed: Date
 }
 
+// MARK: - Query Faces
+
+struct QueryFace: Sendable {
+    let id: Int
+    let boundingBox: FaceBoundingBox
+}
+
 // MARK: - Search Results
 
 struct PhotoMatch: Sendable {

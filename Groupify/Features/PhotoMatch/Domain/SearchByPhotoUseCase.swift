@@ -2,58 +2,67 @@ import Foundation
 import UIKit
 
 struct SearchByPhotoUseCase: Sendable {
-    let detector: any FaceDetector
     let embedder: any FaceEmbedder
     let repository: any FaceIndexRepository
 
     enum SearchError: Error, LocalizedError {
-        case invalidImage
-        case noFaceDetected
+        case noFacesSelected
         case cropFailed
 
         var errorDescription: String? {
             switch self {
-            case .invalidImage:    return "The selected image could not be processed"
-            case .noFaceDetected:  return "No face detected in the selected photo"
+            case .noFacesSelected: return "Select at least one face to search"
             case .cropFailed:      return "Failed to crop the detected face"
             }
         }
     }
 
-    /// Detects the largest face in `queryImage`, embeds it, and ranks the
-    /// stored index by cosine similarity.
-    nonisolated func execute(queryImage: UIImage) async throws -> [PhotoMatch] {
-        guard let cgImage = queryImage.cgImage else {
-            throw SearchError.invalidImage
+    /// Searches the index using one or more selected face bounding boxes from
+    /// the query image. For each indexed photo, keeps the best similarity score
+    /// across all selected query faces.
+    nonisolated func execute(
+        queryImage: UIImage,
+        selectedFaces: [FaceBoundingBox]
+    ) async throws -> [PhotoMatch] {
+        guard !selectedFaces.isEmpty else {
+            throw SearchError.noFacesSelected
         }
 
-        // 1. Detect faces in query.
-        let faces = try await detector.detectFaces(in: cgImage)
-        guard !faces.isEmpty else { throw SearchError.noFaceDetected }
+        // 1. Compute embedding for each selected face.
+        var queryVectors = [[Float]]()
+        for box in selectedFaces {
+            guard let cropped = FaceCropper.crop(
+                from: queryImage, boundingBox: box
+            ) else {
+                continue
+            }
+            let embedding = try await embedder.computeEmbedding(faceImage: cropped)
+            queryVectors.append(l2Normalize(embedding.values))
+        }
 
-        // 2. Pick the largest face.
-        let largest = faces.max { $0.boundingBox.area < $1.boundingBox.area }!
-        guard let cropped = FaceCropper.crop(
-            from: queryImage, boundingBox: largest.boundingBox
-        ) else {
+        guard !queryVectors.isEmpty else {
             throw SearchError.cropFailed
         }
 
-        // 3. Compute embedding.
-        let queryEmbedding = try await embedder.computeEmbedding(faceImage: cropped)
-        let qVec = l2Normalize(queryEmbedding.values)
-
-        // 4. Load index and rank by cosine similarity.
+        // 2. Load index and rank.
         let index = try await repository.load()
-        let matches: [PhotoMatch] = index.map { indexed in
+
+        // For each indexed face, take the max similarity across all query vectors.
+        var bestScores = [String: Float]() // assetIdentifier -> best score
+        for indexed in index {
             let iVec = l2Normalize(indexed.embedding.values)
-            let score = dotProduct(qVec, iVec)
-            return PhotoMatch(
-                assetIdentifier: indexed.assetIdentifier,
-                similarityScore: max(0, score)
-            )
+            var best: Float = 0
+            for qVec in queryVectors {
+                let score = dotProduct(qVec, iVec)
+                best = max(best, score)
+            }
+            let existing = bestScores[indexed.assetIdentifier] ?? 0
+            bestScores[indexed.assetIdentifier] = max(existing, best)
         }
 
+        let matches = bestScores.map {
+            PhotoMatch(assetIdentifier: $0.key, similarityScore: max(0, $0.value))
+        }
         return matches.sorted { $0.similarityScore > $1.similarityScore }
     }
 

@@ -23,6 +23,11 @@ struct PhotoMatchScreen: View {
                 VStack(spacing: 24) {
                     headerSection
                     queryPhotoCard
+                    if !viewModel.state.queryFaces.isEmpty {
+                        faceChipsSection
+                    } else if viewModel.state.isFaceLoading {
+                        faceLoadingIndicator
+                    }
                     takePhotoButton
                     startDetectionButton
                     sensitivitySlider
@@ -103,7 +108,7 @@ struct PhotoMatchScreen: View {
         .padding(.top, 8)
     }
 
-    // MARK: - Query Photo Card
+    // MARK: - Query Photo Card (with bbox overlay)
 
     private var queryPhotoCard: some View {
         Button {
@@ -115,7 +120,7 @@ struct PhotoMatchScreen: View {
                     .frame(height: 260)
 
                 if let image = viewModel.state.selectedImage {
-                    selectedImageContent(image)
+                    queryImageWithOverlay(image)
                 } else {
                     emptyCardContent
                 }
@@ -140,19 +145,171 @@ struct PhotoMatchScreen: View {
         }
     }
 
-    private func selectedImageContent(_ image: UIImage) -> some View {
-        ZStack(alignment: .topTrailing) {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-                .frame(height: 260)
-                .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+    /// Shows the query image with a purple bounding box on the focused face.
+    private func queryImageWithOverlay(_ image: UIImage) -> some View {
+        GeometryReader { geo in
+            let containerSize = geo.size
+            let imageSize = image.size
+            let fitted = aspectFitRect(imageSize: imageSize, in: containerSize)
 
-            Image(systemName: "checkmark.circle.fill")
-                .font(.title2)
-                .foregroundColor(.green)
-                .padding(12)
+            ZStack(alignment: .topLeading) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: containerSize.width, height: containerSize.height)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+
+                // Focused face bounding box overlay
+                if let box = viewModel.state.focusedBoundingBox {
+                    let rect = bboxToDisplayRect(box: box, fitted: fitted)
+                    RoundedRectangle(cornerRadius: 4)
+                        .stroke(Theme.accent, lineWidth: 2.5)
+                        .frame(width: rect.width, height: rect.height)
+                        .offset(x: rect.origin.x, y: rect.origin.y)
+                        .animation(.easeInOut(duration: 0.2), value: viewModel.state.focusedFaceId)
+                }
+
+                // Checkmark
+                HStack {
+                    Spacer()
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.green)
+                        .padding(12)
+                }
+            }
         }
+        .frame(height: 260)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+    }
+
+    /// Computes the rect a scaledToFit image occupies inside a container.
+    private func aspectFitRect(imageSize: CGSize, in container: CGSize) -> CGRect {
+        guard imageSize.width > 0, imageSize.height > 0 else {
+            return CGRect(origin: .zero, size: container)
+        }
+        let scale = min(
+            container.width / imageSize.width,
+            container.height / imageSize.height
+        )
+        let w = imageSize.width * scale
+        let h = imageSize.height * scale
+        let x = (container.width - w) / 2
+        let y = (container.height - h) / 2
+        return CGRect(x: x, y: y, width: w, height: h)
+    }
+
+    /// Converts a normalized FaceBoundingBox (top-left origin, 0…1)
+    /// to the display coordinate rect within the fitted image area.
+    private func bboxToDisplayRect(box: FaceBoundingBox, fitted: CGRect) -> CGRect {
+        CGRect(
+            x: fitted.origin.x + CGFloat(box.x) * fitted.width,
+            y: fitted.origin.y + CGFloat(box.y) * fitted.height,
+            width: CGFloat(box.width) * fitted.width,
+            height: CGFloat(box.height) * fitted.height
+        )
+    }
+
+    // MARK: - Face Chips
+
+    private var faceLoadingIndicator: some View {
+        HStack(spacing: 8) {
+            ProgressView()
+                .tint(.white)
+            Text("Detecting faces…")
+                .font(.subheadline)
+                .foregroundColor(Theme.secondaryText)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 12)
+    }
+
+    private var faceChipsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Title row
+            HStack {
+                Text("Select who to search")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(.white)
+
+                Spacer()
+
+                Button("Select all") { viewModel.onSelectAllFaces() }
+                    .font(.caption.weight(.medium))
+                    .foregroundColor(Theme.accent)
+
+                Button("Clear") { viewModel.onClearFaceSelection() }
+                    .font(.caption.weight(.medium))
+                    .foregroundColor(Theme.secondaryText)
+            }
+
+            // Chips scroll
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(viewModel.state.queryFaces) { face in
+                        faceChip(face)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+
+            // Selection count
+            let sel = viewModel.state.selectedFaces.count
+            let total = viewModel.state.queryFaces.count
+            Text("\(sel) of \(total) face\(total == 1 ? "" : "s") selected")
+                .font(.caption)
+                .foregroundColor(Theme.secondaryText)
+        }
+        .padding(14)
+        .background(Theme.cardBackground)
+        .cornerRadius(Theme.cornerRadius)
+    }
+
+    private func faceChip(_ face: QueryFaceUiModel) -> some View {
+        Button {
+            viewModel.onToggleFace(id: face.id)
+        } label: {
+            VStack(spacing: 4) {
+                ZStack(alignment: .bottomTrailing) {
+                    if let thumb = face.thumbnail {
+                        Image(uiImage: thumb)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 44, height: 44)
+                            .clipShape(Circle())
+                    } else {
+                        Circle()
+                            .fill(Theme.cardBackground)
+                            .frame(width: 44, height: 44)
+                            .overlay(
+                                Image(systemName: "person.fill")
+                                    .foregroundColor(Theme.secondaryText)
+                            )
+                    }
+
+                    if face.isSelected {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 14))
+                            .foregroundColor(Theme.accent)
+                            .background(Circle().fill(Color.black).padding(-1))
+                    }
+                }
+                .overlay(
+                    Circle()
+                        .stroke(
+                            face.isSelected ? Theme.accent : Color.clear,
+                            lineWidth: 2
+                        )
+                )
+
+                Text(face.label)
+                    .font(.system(size: 10))
+                    .foregroundColor(
+                        face.isSelected ? .white : Theme.secondaryText
+                    )
+            }
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Buttons
@@ -175,7 +332,9 @@ struct PhotoMatchScreen: View {
     }
 
     private var startDetectionButton: some View {
-        let canStart = viewModel.state.hasPhoto && !viewModel.state.isBusy
+        let canStart = viewModel.state.hasPhoto
+            && viewModel.state.hasSelectedFaces
+            && !viewModel.state.isBusy
         return Button {
             viewModel.onTapStartDetection()
         } label: {
