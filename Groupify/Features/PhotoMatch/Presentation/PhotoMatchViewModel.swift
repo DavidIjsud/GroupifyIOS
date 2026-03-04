@@ -126,7 +126,7 @@ final class PhotoMatchViewModel: ObservableObject {
 
     func onTapTakePhoto() {
         guard state.isCameraAvailable else {
-            state.userMessage = "Camera not available on this device"
+            state.userMessage = L10n.cameraNotAvailable
             state.showSettingsAction = false
             return
         }
@@ -142,18 +142,18 @@ final class PhotoMatchViewModel: ObservableObject {
                     if granted {
                         self.state.isTakingPhoto = true
                     } else {
-                        self.state.userMessage = "Camera permission denied. Enable it in Settings."
+                        self.state.userMessage = L10n.cameraPermissionDenied
                         self.state.showSettingsAction = true
                     }
                 }
             }
 
         case .denied, .restricted:
-            state.userMessage = "Camera permission denied. Enable it in Settings."
+            state.userMessage = L10n.cameraPermissionDenied
             state.showSettingsAction = true
 
         @unknown default:
-            state.userMessage = "Unable to access camera"
+            state.userMessage = L10n.unableToAccessCamera
         }
     }
 
@@ -212,7 +212,7 @@ final class PhotoMatchViewModel: ObservableObject {
                         .flatMap { UIImage(cgImage: $0) }
                     return QueryFaceUiModel(
                         id: face.id,
-                        label: "Face \(index + 1)",
+                        label: L10n.faceLabel(index + 1),
                         boundingBox: face.boundingBox,
                         isSelected: index == 0, // Select largest by default
                         thumbnail: thumb
@@ -255,7 +255,7 @@ final class PhotoMatchViewModel: ObservableObject {
         guard state.hasPhoto, !state.isBusy else { return }
 
         guard state.hasSelectedFaces else {
-            state.userMessage = "Select at least one face"
+            state.userMessage = L10n.selectAtLeastOneFace
             state.showSettingsAction = false
             return
         }
@@ -270,14 +270,14 @@ final class PhotoMatchViewModel: ObservableObject {
                 if granted == .authorized || granted == .limited {
                     await runPipeline()
                 } else {
-                    state.userMessage = "Photo library access is required to search your photos."
+                    state.userMessage = L10n.photoLibraryAccessRequired
                     state.showSettingsAction = true
                 }
             case .denied, .restricted:
-                state.userMessage = "Photo library access denied. Enable it in Settings."
+                state.userMessage = L10n.photoLibraryAccessDenied
                 state.showSettingsAction = true
             @unknown default:
-                state.userMessage = "Unable to access photo library."
+                state.userMessage = L10n.unableToAccessPhotoLibrary
             }
         }
     }
@@ -293,7 +293,7 @@ final class PhotoMatchViewModel: ObservableObject {
     private func runIndexing() async {
         state.isIndexing = true
         state.indexingProgress = 0
-        state.indexingStatus = "Preparing…"
+        state.indexingStatus = L10n.indexPreparing
         defer { state.isIndexing = false }
 
         do {
@@ -304,7 +304,7 @@ final class PhotoMatchViewModel: ObservableObject {
                 }
             }
         } catch {
-            state.userMessage = "Indexing failed: \(error.localizedDescription)"
+            state.userMessage = L10n.indexingFailed(error.localizedDescription)
         }
     }
 
@@ -330,7 +330,7 @@ final class PhotoMatchViewModel: ObservableObject {
             state.allMatches = models
             state.matches = state.filteredMatches
             if state.matches.isEmpty {
-                state.userMessage = "No similar faces found. Try lowering the sensitivity."
+                state.userMessage = L10n.noSimilarFacesFound
             }
         } catch {
             state.userMessage = error.localizedDescription
@@ -357,7 +357,7 @@ final class PhotoMatchViewModel: ObservableObject {
                 state.shareURLs = urls
                 state.showShareSheet = true
             } catch {
-                state.userMessage = "Could not export images for sharing."
+                state.userMessage = L10n.couldNotExportImages
             }
         }
     }

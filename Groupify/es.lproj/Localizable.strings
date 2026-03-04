@@ -1,0 +1,56 @@
+/* Español — Groupify / PhotoMatch */
+
+// MARK: - Header
+"header.title" = "PhotoMatch";
+"header.subtitle" = "Encuentra fotos similares al instante";
+
+// MARK: - Query Photo Card
+"card.tapToUpload" = "Toca para subir una foto";
+"card.selectFromGallery" = "Selecciona de tu galería";
+
+// MARK: - Face Chips
+"faces.detecting" = "Detectando rostros…";
+"faces.selectWhoToSearch" = "Selecciona a quién buscar";
+"faces.selectAll" = "Seleccionar todo";
+"faces.clear" = "Limpiar";
+"faces.label" = "Rostro %d";
+
+// MARK: - Buttons
+"button.takePhoto" = "Tomar una foto";
+"button.startDetection" = "Iniciar búsqueda";
+"button.openSettings" = "Abrir Ajustes";
+"button.shareMatches" = "Compartir coincidencias (%d)";
+
+// MARK: - Sensitivity Slider
+"slider.matchSensitivity" = "Sensibilidad de coincidencia";
+
+// MARK: - Overlays
+"overlay.searching" = "Buscando…";
+
+// MARK: - Messages
+"message.cameraNotAvailable" = "Cámara no disponible en este dispositivo";
+"message.cameraPermissionDenied" = "Permiso de cámara denegado. Habilítalo en Ajustes.";
+"message.unableToAccessCamera" = "No se puede acceder a la cámara";
+"message.selectAtLeastOneFace" = "Selecciona al menos un rostro";
+"message.photoLibraryAccessRequired" = "Se requiere acceso a la fototeca para buscar en tus fotos.";
+"message.photoLibraryAccessDenied" = "Acceso a la fototeca denegado. Habilítalo en Ajustes.";
+"message.unableToAccessPhotoLibrary" = "No se puede acceder a la fototeca.";
+"message.noSimilarFaces" = "No se encontraron rostros similares. Intenta bajar la sensibilidad.";
+"message.couldNotExport" = "No se pudieron exportar las imágenes para compartir.";
+"message.indexingFailed" = "Error al indexar: %@";
+
+// MARK: - Indexing Progress
+"indexing.preparing" = "Preparando…";
+"indexing.upToDate" = "El índice está actualizado";
+"indexing.progress" = "Indexando %d de %d…";
+
+// MARK: - Use Case Errors
+"error.invalidImage" = "La imagen seleccionada no se pudo procesar";
+"error.noFacesDetected" = "No se detectaron rostros en esta foto";
+"error.selectAtLeastOneFace" = "Selecciona al menos un rostro para buscar";
+"error.cropFailed" = "No se pudo recortar el rostro detectado";
+"error.thumbnailFailed" = "No se pudo cargar la miniatura de la foto";
+"error.fullImageFailed" = "No se pudo cargar la foto completa";
+
+// MARK: - Results (plural handled via stringsdict)
+"results.matchesFound" = "%d coincidencias similares encontradas";

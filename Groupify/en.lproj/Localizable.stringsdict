@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+
+    <!-- "2 of 3 faces selected" -->
+    <key>faces.selectedCount</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%1$d of %2$d %#@faces@ selected</string>
+        <key>faces</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>face</string>
+            <key>other</key>
+            <string>faces</string>
+        </dict>
+    </dict>
+
+    <!-- "3 Similar Matches Found" -->
+    <key>results.matchesFound</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%d Similar %#@matches@ Found</string>
+        <key>matches</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Match</string>
+            <key>other</key>
+            <string>Matches</string>
+        </dict>
+    </dict>
+
+</dict>
+</plist>

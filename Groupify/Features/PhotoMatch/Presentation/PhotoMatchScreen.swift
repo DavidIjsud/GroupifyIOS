@@ -96,11 +96,11 @@ struct PhotoMatchScreen: View {
 
     private var headerSection: some View {
         VStack(spacing: 6) {
-            Text("PhotoMatch")
+            Text(L10n.appTitle)
                 .font(.system(size: 28, weight: .bold))
                 .foregroundColor(.white)
 
-            Text("Find similar photos instantly")
+            Text(L10n.appSubtitle)
                 .font(.subheadline)
                 .foregroundColor(Theme.secondaryText)
         }
@@ -135,11 +135,11 @@ struct PhotoMatchScreen: View {
                 .font(.system(size: 40))
                 .foregroundColor(Theme.accent)
 
-            Text("Tap to upload a photo")
+            Text(L10n.tapToUpload)
                 .font(.headline)
                 .foregroundColor(.white)
 
-            Text("Select from your gallery")
+            Text(L10n.selectFromGallery)
                 .font(.caption)
                 .foregroundColor(Theme.secondaryText)
         }
@@ -216,7 +216,7 @@ struct PhotoMatchScreen: View {
         HStack(spacing: 8) {
             ProgressView()
                 .tint(.white)
-            Text("Detecting faces…")
+            Text(L10n.detectingFaces)
                 .font(.subheadline)
                 .foregroundColor(Theme.secondaryText)
         }
@@ -228,17 +228,17 @@ struct PhotoMatchScreen: View {
         VStack(alignment: .leading, spacing: 12) {
             // Title row
             HStack {
-                Text("Select who to search")
+                Text(L10n.selectWhoToSearch)
                     .font(.subheadline.weight(.semibold))
                     .foregroundColor(.white)
 
                 Spacer()
 
-                Button("Select all") { viewModel.onSelectAllFaces() }
+                Button(L10n.selectAll) { viewModel.onSelectAllFaces() }
                     .font(.caption.weight(.medium))
                     .foregroundColor(Theme.accent)
 
-                Button("Clear") { viewModel.onClearFaceSelection() }
+                Button(L10n.clear) { viewModel.onClearFaceSelection() }
                     .font(.caption.weight(.medium))
                     .foregroundColor(Theme.secondaryText)
             }
@@ -256,7 +256,7 @@ struct PhotoMatchScreen: View {
             // Selection count
             let sel = viewModel.state.selectedFaces.count
             let total = viewModel.state.queryFaces.count
-            Text("\(sel) of \(total) face\(total == 1 ? "" : "s") selected")
+            Text(L10n.facesSelected(selected: sel, total: total))
                 .font(.caption)
                 .foregroundColor(Theme.secondaryText)
         }
@@ -320,7 +320,7 @@ struct PhotoMatchScreen: View {
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: "camera.fill")
-                Text("Take a Photo")
+                Text(L10n.takeAPhoto)
                     .fontWeight(.semibold)
             }
             .frame(maxWidth: .infinity)
@@ -338,7 +338,7 @@ struct PhotoMatchScreen: View {
         return Button {
             viewModel.onTapStartDetection()
         } label: {
-            Text("Start Detection")
+            Text(L10n.startDetection)
                 .fontWeight(.bold)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
@@ -354,7 +354,7 @@ struct PhotoMatchScreen: View {
     private var sensitivitySlider: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text("Match Sensitivity")
+                Text(L10n.matchSensitivity)
                     .font(.subheadline)
                     .foregroundColor(Theme.secondaryText)
                 Spacer()
@@ -404,7 +404,7 @@ struct PhotoMatchScreen: View {
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: "square.and.arrow.up")
-                Text("Share Matches (\(viewModel.state.matches.count))")
+                Text(L10n.shareMatches(count: viewModel.state.matches.count))
                     .fontWeight(.semibold)
             }
             .frame(maxWidth: .infinity)
@@ -446,7 +446,7 @@ struct PhotoMatchScreen: View {
                     .progressViewStyle(.circular)
                     .tint(Theme.accent)
                     .scaleEffect(1.5)
-                Text("Searching…")
+                Text(L10n.searching)
                     .font(.subheadline)
                     .foregroundColor(.white)
             }
@@ -480,7 +480,7 @@ struct PhotoMatchScreen: View {
                 Button {
                     viewModel.onOpenSettingsTapped()
                 } label: {
-                    Text("Open Settings")
+                    Text(L10n.openSettings)
                         .font(.subheadline.weight(.semibold))
                         .foregroundColor(Theme.accent)
                         .frame(maxWidth: .infinity)

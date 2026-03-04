@@ -107,8 +107,8 @@ struct PhotoKitLibraryService: PhotoLibraryService, Sendable {
 
         var errorDescription: String? {
             switch self {
-            case .thumbnailFailed: return "Failed to load photo thumbnail"
-            case .fullImageFailed: return "Failed to load full photo"
+            case .thumbnailFailed: return L10n.errorThumbnailFailed
+            case .fullImageFailed: return L10n.errorFullImageFailed
             }
         }
     }

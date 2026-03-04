@@ -1,0 +1,56 @@
+/* English (default) — Groupify / PhotoMatch */
+
+// MARK: - Header
+"header.title" = "PhotoMatch";
+"header.subtitle" = "Find similar photos instantly";
+
+// MARK: - Query Photo Card
+"card.tapToUpload" = "Tap to upload a photo";
+"card.selectFromGallery" = "Select from your gallery";
+
+// MARK: - Face Chips
+"faces.detecting" = "Detecting faces…";
+"faces.selectWhoToSearch" = "Select who to search";
+"faces.selectAll" = "Select all";
+"faces.clear" = "Clear";
+"faces.label" = "Face %d";
+
+// MARK: - Buttons
+"button.takePhoto" = "Take a Photo";
+"button.startDetection" = "Start Detection";
+"button.openSettings" = "Open Settings";
+"button.shareMatches" = "Share Matches (%d)";
+
+// MARK: - Sensitivity Slider
+"slider.matchSensitivity" = "Match Sensitivity";
+
+// MARK: - Overlays
+"overlay.searching" = "Searching…";
+
+// MARK: - Messages
+"message.cameraNotAvailable" = "Camera not available on this device";
+"message.cameraPermissionDenied" = "Camera permission denied. Enable it in Settings.";
+"message.unableToAccessCamera" = "Unable to access camera";
+"message.selectAtLeastOneFace" = "Select at least one face";
+"message.photoLibraryAccessRequired" = "Photo library access is required to search your photos.";
+"message.photoLibraryAccessDenied" = "Photo library access denied. Enable it in Settings.";
+"message.unableToAccessPhotoLibrary" = "Unable to access photo library.";
+"message.noSimilarFaces" = "No similar faces found. Try lowering the sensitivity.";
+"message.couldNotExport" = "Could not export images for sharing.";
+"message.indexingFailed" = "Indexing failed: %@";
+
+// MARK: - Indexing Progress
+"indexing.preparing" = "Preparing…";
+"indexing.upToDate" = "Index is up to date";
+"indexing.progress" = "Indexing %d of %d…";
+
+// MARK: - Use Case Errors
+"error.invalidImage" = "The selected image could not be processed";
+"error.noFacesDetected" = "No faces detected in this photo";
+"error.selectAtLeastOneFace" = "Select at least one face to search";
+"error.cropFailed" = "Failed to crop the detected face";
+"error.thumbnailFailed" = "Failed to load photo thumbnail";
+"error.fullImageFailed" = "Failed to load full photo";
+
+// MARK: - Results (plural handled via stringsdict)
+"results.matchesFound" = "%d Similar Matches Found";

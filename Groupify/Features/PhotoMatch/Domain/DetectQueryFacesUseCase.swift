@@ -10,8 +10,8 @@ struct DetectQueryFacesUseCase: Sendable {
 
         var errorDescription: String? {
             switch self {
-            case .invalidImage:     return "The selected image could not be processed"
-            case .noFacesDetected:  return "No faces detected in this photo"
+            case .invalidImage:     return L10n.errorInvalidImage
+            case .noFacesDetected:  return L10n.errorNoFacesDetected
             }
         }
     }

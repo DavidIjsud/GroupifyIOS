@@ -11,8 +11,8 @@ struct SearchByPhotoUseCase: Sendable {
 
         var errorDescription: String? {
             switch self {
-            case .noFacesSelected: return "Select at least one face to search"
-            case .cropFailed:      return "Failed to crop the detected face"
+            case .noFacesSelected: return L10n.errorSelectAtLeastOneFace
+            case .cropFailed:      return L10n.errorCropFailed
             }
         }
     }

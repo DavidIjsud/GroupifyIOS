@@ -28,7 +28,7 @@ struct IndexLibraryUseCase: Sendable {
         let total = newAssets.count
 
         if total == 0 {
-            onProgress(Progress(current: 0, total: 0, status: "Index is up to date"))
+            onProgress(Progress(current: 0, total: 0, status: L10n.indexUpToDate))
             return existing
         }
 
@@ -38,7 +38,7 @@ struct IndexLibraryUseCase: Sendable {
         for (i, asset) in newAssets.enumerated() {
             onProgress(Progress(
                 current: i + 1, total: total,
-                status: "Indexing \(i + 1) of \(total)…"
+                status: L10n.indexingProgress(current: i + 1, total: total)
             ))
 
             do {
