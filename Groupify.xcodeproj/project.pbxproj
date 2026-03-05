@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E45782352F5938BF00BC524B /* TensorFlowLiteSwift in Frameworks */ = {isa = PBXBuildFile; productRef = E45782342F5938BF00BC524B /* TensorFlowLiteSwift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		E488F2922F57799B00E7FE85 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -65,6 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E45782352F5938BF00BC524B /* TensorFlowLiteSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +130,7 @@
 			);
 			name = Groupify;
 			packageProductDependencies = (
+				E45782342F5938BF00BC524B /* TensorFlowLiteSwift */,
 			);
 			productName = Groupify;
 			productReference = E488F2842F57799A00E7FE85 /* Groupify.app */;
@@ -209,6 +215,9 @@
 			);
 			mainGroup = E488F27B2F57799A00E7FE85;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E45782332F5938BF00BC524B /* XCRemoteSwiftPackageReference "TensorFlowLiteSwift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E488F2852F57799A00E7FE85 /* Products */;
 			projectDirPath = "";
@@ -596,6 +605,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E45782332F5938BF00BC524B /* XCRemoteSwiftPackageReference "TensorFlowLiteSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tareksabry1337/TensorFlowLiteSwift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.14.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E45782342F5938BF00BC524B /* TensorFlowLiteSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E45782332F5938BF00BC524B /* XCRemoteSwiftPackageReference "TensorFlowLiteSwift" */;
+			productName = TensorFlowLiteSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E488F27C2F57799A00E7FE85 /* Project object */;
 }

@@ -88,7 +88,8 @@ final class PhotoMatchViewModel: ObservableObject {
 
     init() {
         let detector = VisionFaceDetector()
-        let embedder = StubFaceEmbedder()
+        let embedderResult = FaceEmbedderFactory.make()
+        let embedder = embedderResult.embedder
         let repo = FileFaceIndexRepository()
         let photoSvc = PhotoKitLibraryService()
 
@@ -105,6 +106,11 @@ final class PhotoMatchViewModel: ObservableObject {
             embedder: embedder,
             repository: repo
         )
+
+        // Show warning if we fell back to the stub embedder.
+        if let warning = embedderResult.warningMessage {
+            state.userMessage = warning
+        }
     }
 
     // MARK: - Photo Picking
