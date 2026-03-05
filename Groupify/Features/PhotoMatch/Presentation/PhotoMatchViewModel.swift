@@ -51,6 +51,11 @@ struct PhotoMatchUiState {
     var showShareSheet: Bool = false
     var shareURLs: [URL] = []
 
+    // Debug
+    #if DEBUG
+    var debugEmbedderName: String = ""
+    #endif
+
     // Derived
     var hasPhoto: Bool { selectedImage != nil }
     var isCameraAvailable: Bool { UIImagePickerController.isSourceTypeAvailable(.camera) }
@@ -111,6 +116,10 @@ final class PhotoMatchViewModel: ObservableObject {
         if let warning = embedderResult.warningMessage {
             state.userMessage = warning
         }
+
+        #if DEBUG
+        state.debugEmbedderName = embedderResult.embedderName
+        #endif
     }
 
     // MARK: - Photo Picking

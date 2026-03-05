@@ -103,6 +103,12 @@ struct PhotoMatchScreen: View {
             Text(L10n.appSubtitle)
                 .font(.subheadline)
                 .foregroundColor(Theme.secondaryText)
+
+            #if DEBUG
+            Text("Embedder: \(viewModel.state.debugEmbedderName)")
+                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                .foregroundColor(Theme.accent.opacity(0.6))
+            #endif
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 8)
