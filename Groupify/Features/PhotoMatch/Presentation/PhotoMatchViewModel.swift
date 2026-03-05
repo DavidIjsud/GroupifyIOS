@@ -51,11 +51,6 @@ struct PhotoMatchUiState {
     var showShareSheet: Bool = false
     var shareURLs: [URL] = []
 
-    // Debug
-    #if DEBUG
-    var debugEmbedderName: String = ""
-    #endif
-
     // Derived
     var hasPhoto: Bool { selectedImage != nil }
     var isCameraAvailable: Bool { UIImagePickerController.isSourceTypeAvailable(.camera) }
@@ -118,9 +113,6 @@ final class PhotoMatchViewModel: ObservableObject {
             state.userMessage = warning
         }
 
-        #if DEBUG
-        state.debugEmbedderName = embedderResult.embedderName
-        #endif
     }
 
     // MARK: - Photo Picking
@@ -331,22 +323,6 @@ final class PhotoMatchViewModel: ObservableObject {
             state.userMessage = L10n.indexingFailed(error.localizedDescription)
         }
     }
-
-    // MARK: - Reset Index
-
-    #if DEBUG
-    func onResetIndex() {
-        Task {
-            do {
-                try await repository.clear()
-                try? metadataStore.clear()
-                state.userMessage = L10n.indexReset
-            } catch {
-                state.userMessage = L10n.indexingFailed(error.localizedDescription)
-            }
-        }
-    }
-    #endif
 
     private func runSearch() async {
         guard let queryImage = state.selectedImage else { return }

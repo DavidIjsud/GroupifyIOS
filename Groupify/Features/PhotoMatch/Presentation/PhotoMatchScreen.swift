@@ -104,23 +104,7 @@ struct PhotoMatchScreen: View {
                 .font(.subheadline)
                 .foregroundColor(Theme.secondaryText)
 
-            #if DEBUG
-            Text("Embedder: \(viewModel.state.debugEmbedderName)")
-                .font(.system(size: 10, weight: .medium, design: .monospaced))
-                .foregroundColor(Theme.accent.opacity(0.6))
 
-            Button {
-                viewModel.onResetIndex()
-            } label: {
-                Text(L10n.resetIndexButton)
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
-                    .foregroundColor(.red.opacity(0.7))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .background(Color.red.opacity(0.1))
-                    .cornerRadius(4)
-            }
-            #endif
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 8)
