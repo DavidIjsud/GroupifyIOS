@@ -3,7 +3,7 @@ import Foundation
 // MARK: - Face Detection
 
 /// Normalized bounding box with top-left origin. All values in 0...1.
-struct FaceBoundingBox: Sendable {
+struct FaceBoundingBox: Codable, Sendable {
     let x: Float
     let y: Float
     let width: Float
@@ -28,6 +28,8 @@ struct FaceEmbedding: Sendable {
 
 struct IndexedFace: Sendable {
     let assetIdentifier: String
+    let faceIndexInAsset: Int
+    let boundingBox: FaceBoundingBox
     let embedding: FaceEmbedding
     let dateIndexed: Date
 }
@@ -35,7 +37,16 @@ struct IndexedFace: Sendable {
 /// Lightweight Codable record for the JSON manifest (embedding stored in binary).
 struct IndexedFaceRecord: Codable, Sendable {
     let assetIdentifier: String
+    let faceIndexInAsset: Int
+    let boundingBox: FaceBoundingBox
     let dateIndexed: Date
+    /// Byte offset into the embeddings.bin file (index * embeddingDim * 4).
+    let embeddingOffset: Int
+
+    /// Unique key for deduplication: "assetIdentifier#faceIndex".
+    nonisolated var dedupeKey: String {
+        "\(assetIdentifier)#\(faceIndexInAsset)"
+    }
 }
 
 // MARK: - Query Faces

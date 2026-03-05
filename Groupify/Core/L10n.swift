@@ -159,6 +159,24 @@ enum L10n {
         NSLocalizedString("error.fullImageFailed", comment: "Full photo load failed")
     }
 
+    // MARK: - Indexing Result
+
+    /// "Indexed 5 new faces (skipped 12 already indexed)"
+    nonisolated static func indexingResult(indexedNew: Int, skippedExisting: Int) -> String {
+        String(format: NSLocalizedString(
+            "indexing.result",
+            comment: "Indexing summary: X new, Y skipped"
+        ), indexedNew, skippedExisting)
+    }
+
+    nonisolated static var indexReset: String {
+        NSLocalizedString("indexing.reset", comment: "Index has been reset confirmation")
+    }
+
+    nonisolated static var resetIndexButton: String {
+        NSLocalizedString("button.resetIndex", comment: "DEBUG button to clear the face index")
+    }
+
     // MARK: - Results
 
     /// Uses stringsdict for plurals: "3 Similar Matches Found"

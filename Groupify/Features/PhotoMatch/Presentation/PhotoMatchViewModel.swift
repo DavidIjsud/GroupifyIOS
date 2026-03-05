@@ -298,10 +298,7 @@ final class PhotoMatchViewModel: ObservableObject {
     }
 
     private func runPipeline() async {
-        let existing = (try? await repository.load()) ?? []
-        if existing.isEmpty {
-            await runIndexing()
-        }
+        await runIndexing()
         await runSearch()
     }
 
@@ -312,16 +309,37 @@ final class PhotoMatchViewModel: ObservableObject {
         defer { state.isIndexing = false }
 
         do {
-            _ = try await indexUseCase.execute { [weak self] progress in
+            let result = try await indexUseCase.execute { [weak self] progress in
                 Task { @MainActor [weak self] in
                     self?.state.indexingProgress = progress.fraction
                     self?.state.indexingStatus = progress.status
                 }
             }
+            if result.indexedNew > 0 || result.skippedExisting > 0 {
+                state.userMessage = L10n.indexingResult(
+                    indexedNew: result.indexedNew,
+                    skippedExisting: result.skippedExisting
+                )
+            }
         } catch {
             state.userMessage = L10n.indexingFailed(error.localizedDescription)
         }
     }
+
+    // MARK: - Reset Index
+
+    #if DEBUG
+    func onResetIndex() {
+        Task {
+            do {
+                try await repository.clear()
+                state.userMessage = L10n.indexReset
+            } catch {
+                state.userMessage = L10n.indexingFailed(error.localizedDescription)
+            }
+        }
+    }
+    #endif
 
     private func runSearch() async {
         guard let queryImage = state.selectedImage else { return }

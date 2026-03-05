@@ -15,27 +15,39 @@ struct IndexLibraryUseCase: Sendable {
         var fraction: Float { total > 0 ? Float(current) / Float(total) : 0 }
     }
 
-    /// Indexes all library photos that aren't already in the index.
+    struct Result: Sendable {
+        let indexedNew: Int
+        let skippedExisting: Int
+        let totalInIndex: Int
+    }
+
+    /// Incrementally indexes all library photos.
+    /// Only indexes faces not already present (deduped by assetIdentifier + faceIndex).
     /// Calls `onProgress` from a background context — callers must dispatch to MainActor.
     nonisolated func execute(
         onProgress: @escaping @Sendable (Progress) -> Void
-    ) async throws -> [IndexedFace] {
-        let existing = (try? await repository.load()) ?? []
-        let existingIds = Set(existing.map(\.assetIdentifier))
+    ) async throws -> Result {
+        // Load existing records for dedup (lightweight — no embeddings loaded).
+        let existingRecords = (try? await repository.loadRecords()) ?? []
+        let existingKeys = Set(existingRecords.map(\.dedupeKey))
 
         let assets = photoService.fetchAllAssets()
-        let newAssets = assets.filter { !existingIds.contains($0.localIdentifier) }
-        let total = newAssets.count
+        let total = assets.count
 
         if total == 0 {
             onProgress(Progress(current: 0, total: 0, status: L10n.indexUpToDate))
-            return existing
+            return Result(
+                indexedNew: 0,
+                skippedExisting: existingRecords.count,
+                totalInIndex: existingRecords.count
+            )
         }
 
-        var results = existing
+        var newFaces = [IndexedFace]()
+        var skippedExisting = 0
         let thumbSize = CGSize(width: 300, height: 300)
 
-        for (i, asset) in newAssets.enumerated() {
+        for (i, asset) in assets.enumerated() {
             onProgress(Progress(
                 current: i + 1, total: total,
                 status: L10n.indexingProgress(current: i + 1, total: total)
@@ -47,28 +59,48 @@ struct IndexLibraryUseCase: Sendable {
                 )
                 guard let cgImage = thumb.cgImage else { continue }
 
-                let faces = try await detector.detectFaces(in: cgImage)
-                // Pick the face with the largest bounding box area.
-                guard let best = faces.max(by: { $0.boundingBox.area < $1.boundingBox.area })
-                else { continue }
+                let detectedFaces = try await detector.detectFaces(in: cgImage)
+                if detectedFaces.isEmpty { continue }
 
-                guard let cropped = FaceCropper.crop(
-                    from: thumb, boundingBox: best.boundingBox
-                ) else { continue }
+                // Sort faces by area descending for consistent indexing order.
+                let sortedFaces = detectedFaces.sorted { $0.boundingBox.area > $1.boundingBox.area }
 
-                let embedding = try await embedder.computeEmbedding(faceImage: cropped)
-                results.append(IndexedFace(
-                    assetIdentifier: asset.localIdentifier,
-                    embedding: embedding,
-                    dateIndexed: Date()
-                ))
+                for (faceIdx, face) in sortedFaces.enumerated() {
+                    let key = "\(asset.localIdentifier)#\(faceIdx)"
+                    if existingKeys.contains(key) {
+                        skippedExisting += 1
+                        continue
+                    }
+
+                    guard let cropped = FaceCropper.crop(
+                        from: thumb, boundingBox: face.boundingBox
+                    ) else { continue }
+
+                    let embedding = try await embedder.computeEmbedding(faceImage: cropped)
+                    newFaces.append(IndexedFace(
+                        assetIdentifier: asset.localIdentifier,
+                        faceIndexInAsset: faceIdx,
+                        boundingBox: face.boundingBox,
+                        embedding: embedding,
+                        dateIndexed: Date()
+                    ))
+                }
             } catch {
                 // Skip individual failures — continue indexing.
                 continue
             }
         }
 
-        try await repository.save(results)
-        return results
+        // Append only new faces to the index.
+        if !newFaces.isEmpty {
+            try await repository.append(newFaces: newFaces)
+        }
+
+        let totalInIndex = existingRecords.count + newFaces.count
+        return Result(
+            indexedNew: newFaces.count,
+            skippedExisting: skippedExisting,
+            totalInIndex: totalInIndex
+        )
     }
 }

@@ -20,6 +20,7 @@
 "button.startDetection" = "Iniciar búsqueda";
 "button.openSettings" = "Abrir Ajustes";
 "button.shareMatches" = "Compartir coincidencias (%d)";
+"button.resetIndex" = "Restablecer índice";
 
 // MARK: - Sensitivity Slider
 "slider.matchSensitivity" = "Sensibilidad de coincidencia";
@@ -43,6 +44,8 @@
 "indexing.preparing" = "Preparando…";
 "indexing.upToDate" = "El índice está actualizado";
 "indexing.progress" = "Indexando %d de %d…";
+"indexing.result" = "Se indexaron %d rostros nuevos (%d ya indexados omitidos)";
+"indexing.reset" = "El índice se ha restablecido";
 
 // MARK: - Use Case Errors
 "error.invalidImage" = "La imagen seleccionada no se pudo procesar";

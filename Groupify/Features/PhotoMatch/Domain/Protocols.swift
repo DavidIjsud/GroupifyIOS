@@ -18,7 +18,9 @@ protocol FaceEmbedder: Sendable {
 
 protocol FaceIndexRepository: Sendable {
     nonisolated func load() async throws -> [IndexedFace]
+    nonisolated func loadRecords() async throws -> [IndexedFaceRecord]
     nonisolated func save(_ faces: [IndexedFace]) async throws
+    nonisolated func append(newFaces: [IndexedFace]) async throws
     nonisolated func clear() async throws
 }
 
