@@ -87,6 +87,7 @@ final class PhotoMatchViewModel: ObservableObject {
     private let detectQueryFacesUseCase: DetectQueryFacesUseCase
     private let repository: any FaceIndexRepository
     private let photoService: any PhotoLibraryService
+    private let metadataStore = IndexMetadataStore()
 
     /// Monotonically increasing token to cancel stale face-detection tasks.
     private var faceDetectionToken: Int = 0
@@ -298,31 +299,33 @@ final class PhotoMatchViewModel: ObservableObject {
     }
 
     private func runPipeline() async {
-        let existingRecords = (try? await repository.loadRecords()) ?? []
-        if existingRecords.isEmpty {
-            await runIndexing()
-        }
+        let lastIndexed = metadataStore.loadLastIndexedDate()
+        await runIndexing(since: lastIndexed)
         await runSearch()
     }
 
-    private func runIndexing() async {
+    private func runIndexing(since: Date?) async {
         state.isIndexing = true
         state.indexingProgress = 0
         state.indexingStatus = L10n.indexPreparing
         defer { state.isIndexing = false }
 
         do {
-            let result = try await indexUseCase.execute { [weak self] progress in
+            let result = try await indexUseCase.execute(since: since) { [weak self] progress in
                 Task { @MainActor [weak self] in
                     self?.state.indexingProgress = progress.fraction
                     self?.state.indexingStatus = progress.status
                 }
             }
-            if result.indexedNew > 0 || result.skippedExisting > 0 {
-                state.userMessage = L10n.indexingResult(
-                    indexedNew: result.indexedNew,
-                    skippedExisting: result.skippedExisting
+
+            if result.scannedNewAssets == 0 {
+                state.userMessage = L10n.noNewPhotosToIndex
+            } else if result.indexedNewFaces > 0 {
+                state.userMessage = L10n.indexingResultNew(
+                    faces: result.indexedNewFaces,
+                    photos: result.scannedNewAssets
                 )
+                try? metadataStore.saveLastIndexedDate(Date())
             }
         } catch {
             state.userMessage = L10n.indexingFailed(error.localizedDescription)
@@ -336,6 +339,7 @@ final class PhotoMatchViewModel: ObservableObject {
         Task {
             do {
                 try await repository.clear()
+                try? metadataStore.clear()
                 state.userMessage = L10n.indexReset
             } catch {
                 state.userMessage = L10n.indexingFailed(error.localizedDescription)

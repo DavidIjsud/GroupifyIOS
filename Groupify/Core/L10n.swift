@@ -161,12 +161,16 @@ enum L10n {
 
     // MARK: - Indexing Result
 
-    /// "Indexed 5 new faces (skipped 12 already indexed)"
-    nonisolated static func indexingResult(indexedNew: Int, skippedExisting: Int) -> String {
+    nonisolated static var noNewPhotosToIndex: String {
+        NSLocalizedString("indexing.noNewPhotos", comment: "No new photos since last indexing")
+    }
+
+    /// "Indexed 5 new faces from 3 new photos"
+    nonisolated static func indexingResultNew(faces: Int, photos: Int) -> String {
         String(format: NSLocalizedString(
-            "indexing.result",
-            comment: "Indexing summary: X new, Y skipped"
-        ), indexedNew, skippedExisting)
+            "indexing.resultNew",
+            comment: "Indexing summary: X new faces from Y new photos"
+        ), faces, photos)
     }
 
     nonisolated static var indexReset: String {

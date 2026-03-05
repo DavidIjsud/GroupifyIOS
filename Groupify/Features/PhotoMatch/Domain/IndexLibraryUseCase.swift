@@ -16,35 +16,36 @@ struct IndexLibraryUseCase: Sendable {
     }
 
     struct Result: Sendable {
-        let indexedNew: Int
-        let skippedExisting: Int
+        let indexedNewFaces: Int
+        let scannedNewAssets: Int
         let totalInIndex: Int
     }
 
-    /// Incrementally indexes all library photos.
+    /// Incrementally indexes library photos added since `since`.
     /// Only indexes faces not already present (deduped by assetIdentifier + faceIndex).
     /// Calls `onProgress` from a background context — callers must dispatch to MainActor.
     nonisolated func execute(
+        since: Date?,
         onProgress: @escaping @Sendable (Progress) -> Void
     ) async throws -> Result {
-        // Load existing records for dedup (lightweight — no embeddings loaded).
+        // Load existing records for face-level dedup.
         let existingRecords = (try? await repository.loadRecords()) ?? []
         let existingKeys = Set(existingRecords.map(\.dedupeKey))
 
-        let assets = photoService.fetchAllAssets()
+        // Only fetch assets newer than the last indexing run.
+        let assets = photoService.fetchAssets(newerThan: since)
         let total = assets.count
 
         if total == 0 {
             onProgress(Progress(current: 0, total: 0, status: L10n.indexUpToDate))
             return Result(
-                indexedNew: 0,
-                skippedExisting: existingRecords.count,
+                indexedNewFaces: 0,
+                scannedNewAssets: 0,
                 totalInIndex: existingRecords.count
             )
         }
 
         var newFaces = [IndexedFace]()
-        var skippedExisting = 0
         let thumbSize = CGSize(width: 300, height: 300)
 
         for (i, asset) in assets.enumerated() {
@@ -67,10 +68,7 @@ struct IndexLibraryUseCase: Sendable {
 
                 for (faceIdx, face) in sortedFaces.enumerated() {
                     let key = "\(asset.localIdentifier)#\(faceIdx)"
-                    if existingKeys.contains(key) {
-                        skippedExisting += 1
-                        continue
-                    }
+                    if existingKeys.contains(key) { continue }
 
                     guard let cropped = FaceCropper.crop(
                         from: thumb, boundingBox: face.boundingBox
@@ -98,8 +96,8 @@ struct IndexLibraryUseCase: Sendable {
 
         let totalInIndex = existingRecords.count + newFaces.count
         return Result(
-            indexedNew: newFaces.count,
-            skippedExisting: skippedExisting,
+            indexedNewFaces: newFaces.count,
+            scannedNewAssets: total,
             totalInIndex: totalInIndex
         )
     }

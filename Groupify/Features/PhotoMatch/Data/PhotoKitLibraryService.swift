@@ -13,8 +13,18 @@ struct PhotoKitLibraryService: PhotoLibraryService, Sendable {
     }
 
     nonisolated func fetchAllAssets() -> [PHAsset] {
+        fetchAssets(newerThan: nil)
+    }
+
+    nonisolated func fetchAssets(newerThan date: Date?) -> [PHAsset] {
         let options = PHFetchOptions()
         options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        if let date {
+            options.predicate = NSCompoundPredicate(orPredicateWithSubpredicates: [
+                NSPredicate(format: "creationDate > %@", date as NSDate),
+                NSPredicate(format: "modificationDate > %@", date as NSDate)
+            ])
+        }
         let result = PHAsset.fetchAssets(with: .image, options: options)
         var assets = [PHAsset]()
         assets.reserveCapacity(result.count)

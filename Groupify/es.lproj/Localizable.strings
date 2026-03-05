@@ -44,7 +44,8 @@
 "indexing.preparing" = "Preparando…";
 "indexing.upToDate" = "El índice está actualizado";
 "indexing.progress" = "Indexando %d de %d…";
-"indexing.result" = "Se indexaron %d rostros nuevos (%d ya indexados omitidos)";
+"indexing.noNewPhotos" = "No hay fotos nuevas para indexar";
+"indexing.resultNew" = "Se indexaron %d rostros nuevos de %d fotos nuevas";
 "indexing.reset" = "El índice se ha restablecido";
 
 // MARK: - Use Case Errors

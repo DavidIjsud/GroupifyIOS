@@ -31,6 +31,8 @@ protocol PhotoLibraryService: Sendable {
     nonisolated func requestAuthorization() async -> PHAuthorizationStatus
     /// Returns all photo assets (images) ordered by creation date descending.
     nonisolated func fetchAllAssets() -> [PHAsset]
+    /// Returns photo assets created or modified after the given date. If nil, returns all.
+    nonisolated func fetchAssets(newerThan date: Date?) -> [PHAsset]
     /// Loads a thumbnail for indexing.
     nonisolated func loadThumbnail(for asset: PHAsset, targetSize: CGSize) async throws -> UIImage
     /// Loads a full-resolution image.
