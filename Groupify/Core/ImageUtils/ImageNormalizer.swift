@@ -47,8 +47,14 @@ enum ImageNormalizer {
             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
         ) else { return nil }
 
-        // UIImage.draw applies the orientation transform automatically,
-        // producing a truly upright raster.
+        // CGContext uses bottom-left origin, but UIImage.draw uses top-left
+        // (UIKit coordinates). Flip the context so UIImage.draw renders
+        // right-side-up in the resulting CGImage.
+        ctx.translateBy(x: 0, y: CGFloat(h))
+        ctx.scaleBy(x: 1, y: -1)
+
+        // UIImage.draw applies the EXIF orientation transform automatically,
+        // producing a truly upright raster in the now-flipped context.
         UIGraphicsPushContext(ctx)
         uiImage.draw(in: CGRect(x: 0, y: 0, width: w, height: h))
         UIGraphicsPopContext()
