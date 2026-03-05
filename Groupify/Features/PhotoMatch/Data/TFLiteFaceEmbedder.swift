@@ -47,11 +47,11 @@ struct TFLiteFaceEmbedder: FaceEmbedder, Sendable {
     /// from different async tasks are serialised.
     private final class InterpreterHolder: @unchecked Sendable {
         private let lock = NSLock()
-        private var interpreter: Interpreter?
-        private var isAllocated = false
+        private nonisolated(unsafe) var interpreter: Interpreter?
+        private nonisolated(unsafe) var isAllocated = false
 
         /// Lazily creates the interpreter on first use.
-        func withInterpreter<T>(_ body: (Interpreter) throws -> T) throws -> T {
+        nonisolated func withInterpreter<T>(_ body: (Interpreter) throws -> T) throws -> T {
             lock.lock()
             defer { lock.unlock() }
 
