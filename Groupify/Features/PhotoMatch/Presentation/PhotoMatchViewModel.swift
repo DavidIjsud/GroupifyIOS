@@ -298,7 +298,10 @@ final class PhotoMatchViewModel: ObservableObject {
     }
 
     private func runPipeline() async {
-        await runIndexing()
+        let existingRecords = (try? await repository.loadRecords()) ?? []
+        if existingRecords.isEmpty {
+            await runIndexing()
+        }
         await runSearch()
     }
 
