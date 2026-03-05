@@ -37,44 +37,19 @@ struct SearchByPhotoUseCase: Sendable {
                 continue
             }
             let embedding = try await embedder.computeEmbedding(faceImage: cropped)
-            queryVectors.append(l2Normalize(embedding.values))
+            queryVectors.append(embedding.values)
         }
 
         guard !queryVectors.isEmpty else {
             throw SearchError.cropFailed
         }
 
-        // 2. Load index and rank.
+        // 2. Load index and rank using Accelerate-backed Top-K search.
         let index = try await repository.load()
 
-        // For each indexed face, take the max similarity across all query vectors.
-        var bestScores = [String: Float]() // assetIdentifier -> best score
-        for indexed in index {
-            let iVec = l2Normalize(indexed.embedding.values)
-            var best: Float = 0
-            for qVec in queryVectors {
-                let score = dotProduct(qVec, iVec)
-                best = max(best, score)
-            }
-            let existing = bestScores[indexed.assetIdentifier] ?? 0
-            bestScores[indexed.assetIdentifier] = max(existing, best)
-        }
-
-        let matches = bestScores.map {
-            PhotoMatch(assetIdentifier: $0.key, similarityScore: max(0, $0.value))
-        }
-        return matches.sorted { $0.similarityScore > $1.similarityScore }
-    }
-
-    // MARK: - Math
-
-    private nonisolated func l2Normalize(_ v: [Float]) -> [Float] {
-        let mag = sqrt(v.reduce(0) { $0 + $1 * $1 })
-        guard mag > 0 else { return v }
-        return v.map { $0 / mag }
-    }
-
-    private nonisolated func dotProduct(_ a: [Float], _ b: [Float]) -> Float {
-        zip(a, b).reduce(0) { $0 + $1.0 * $1.1 }
+        return EmbeddingSearchEngine.topKMatches(
+            queryVectors: queryVectors,
+            indexedFaces: index
+        )
     }
 }

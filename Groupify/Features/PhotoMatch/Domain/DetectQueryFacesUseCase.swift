@@ -23,19 +23,14 @@ struct DetectQueryFacesUseCase: Sendable {
         queryImage: UIImage,
         imageIdentifier: String
     ) async throws -> [QueryFace] {
-        guard let cgImage = queryImage.cgImage else {
-            throw QueryFaceError.invalidImage
-        }
-
-        let detected = try await detector.detectFaces(in: cgImage)
+        // Detector now handles normalization internally and returns
+        // faces sorted by area descending.
+        let detected = try await detector.detectFaces(in: queryImage)
         guard !detected.isEmpty else {
             throw QueryFaceError.noFacesDetected
         }
 
-        // Sort by area descending so index 0 = largest face.
-        let sorted = detected.sorted { $0.boundingBox.area > $1.boundingBox.area }
-
-        return sorted.enumerated().map { index, face in
+        return detected.enumerated().map { index, face in
             // Stable ID: hash of imageIdentifier + face index in the sorted list.
             var hasher = Hasher()
             hasher.combine(imageIdentifier)

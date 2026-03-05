@@ -58,13 +58,10 @@ struct IndexLibraryUseCase: Sendable {
                 let thumb = try await photoService.loadThumbnail(
                     for: asset, targetSize: thumbSize
                 )
-                guard let cgImage = thumb.cgImage else { continue }
 
-                let detectedFaces = try await detector.detectFaces(in: cgImage)
-                if detectedFaces.isEmpty { continue }
-
-                // Sort faces by area descending for consistent indexing order.
-                let sortedFaces = detectedFaces.sorted { $0.boundingBox.area > $1.boundingBox.area }
+                // Detector normalizes internally and returns faces sorted by area desc.
+                let sortedFaces = try await detector.detectFaces(in: thumb)
+                if sortedFaces.isEmpty { continue }
 
                 for (faceIdx, face) in sortedFaces.enumerated() {
                     let key = "\(asset.localIdentifier)#\(faceIdx)"

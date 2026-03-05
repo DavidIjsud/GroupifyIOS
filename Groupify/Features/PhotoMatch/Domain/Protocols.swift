@@ -5,7 +5,7 @@ import UIKit
 // MARK: - Face Detection
 
 protocol FaceDetector: Sendable {
-    nonisolated func detectFaces(in image: CGImage) async throws -> [DetectedFace]
+    nonisolated func detectFaces(in image: UIImage) async throws -> [DetectedFace]
 }
 
 // MARK: - Face Embedding
