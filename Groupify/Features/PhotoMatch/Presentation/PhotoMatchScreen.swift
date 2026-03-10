@@ -30,7 +30,6 @@ struct PhotoMatchScreen: View {
                     }
                     takePhotoButton
                     startDetectionButton
-                    sensitivitySlider
                     if !viewModel.state.matches.isEmpty {
                         resultsGrid
                         shareMatchesButton
@@ -390,36 +389,6 @@ struct PhotoMatchScreen: View {
                 .cornerRadius(Theme.cornerRadius)
         }
         .disabled(!canStart)
-    }
-
-    // MARK: - Sensitivity Slider
-
-    private var sensitivitySlider: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(L10n.matchSensitivity)
-                    .font(.subheadline)
-                    .foregroundColor(Theme.secondaryText)
-                Spacer()
-                Text("\(Int(viewModel.state.matchSensitivity * 100))%")
-                    .font(.subheadline.monospacedDigit())
-                    .foregroundColor(.white)
-            }
-            Slider(
-                value: Binding(
-                    get: { viewModel.state.matchSensitivity },
-                    set: { viewModel.onSensitivityChanged(value: $0) }
-                ),
-                in: 0.60...0.95,
-                step: 0.01
-            )
-            .tint(Theme.accent)
-        }
-        .padding(14)
-        .background(Theme.cardBackground)
-        .cornerRadius(Theme.cornerRadius)
-        .opacity(viewModel.state.allMatches.isEmpty ? 0 : 1)
-        .animation(.easeInOut(duration: 0.2), value: viewModel.state.allMatches.isEmpty)
     }
 
     // MARK: - Results Grid

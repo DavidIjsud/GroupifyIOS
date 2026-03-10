@@ -43,7 +43,7 @@ struct PhotoMatchUiState {
 
     // Search
     var isSearching: Bool = false
-    var matchSensitivity: Double = 0.82
+    var matchSensitivity: Double = 0.40
     var allMatches: [MatchUiModel] = []
     var matches: [MatchUiModel] = []
 
@@ -379,13 +379,6 @@ final class PhotoMatchViewModel: ObservableObject {
         } catch {
             state.userMessage = error.localizedDescription
         }
-    }
-
-    // MARK: - Sensitivity
-
-    func onSensitivityChanged(value: Double) {
-        state.matchSensitivity = value
-        state.matches = state.filteredMatches
     }
 
     // MARK: - Sharing
