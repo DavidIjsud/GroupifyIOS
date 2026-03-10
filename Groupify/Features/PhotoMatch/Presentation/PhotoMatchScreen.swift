@@ -31,6 +31,10 @@ struct PhotoMatchScreen: View {
                     takePhotoButton
                     startDetectionButton
                     if !viewModel.state.matches.isEmpty {
+                        Text(L10n.similarMatchesFound(count: viewModel.state.matches.count))
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         resultsGrid
                         shareMatchesButton
                     }
