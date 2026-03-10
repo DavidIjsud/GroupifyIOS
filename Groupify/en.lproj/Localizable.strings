@@ -56,6 +56,9 @@
 "error.thumbnailFailed" = "Failed to load photo thumbnail";
 "error.fullImageFailed" = "Failed to load full photo";
 
+// MARK: - Match Selection
+"matches.clearSelection" = "Clear selection";
+
 // MARK: - Permission Dialogs
 "perm.preTitle" = "Search your entire gallery";
 "perm.preMessage" = "Groupify needs full photo library access to find matching photos across your gallery.";

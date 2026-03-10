@@ -181,6 +181,12 @@ enum L10n {
         NSLocalizedString("button.resetIndex", comment: "DEBUG button to clear the face index")
     }
 
+    // MARK: - Match Selection
+
+    nonisolated static var clearSelection: String {
+        NSLocalizedString("matches.clearSelection", comment: "Clear photo selection button")
+    }
+
     // MARK: - Permission Dialogs
 
     nonisolated static var permPreTitle: String {

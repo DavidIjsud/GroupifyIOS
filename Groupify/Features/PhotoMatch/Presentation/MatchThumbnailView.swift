@@ -4,12 +4,16 @@ import SwiftUI
 struct MatchThumbnailView: View {
     let assetIdentifier: String
     let scorePercent: Int
+    var isSelected: Bool = false
 
     @State private var thumbnail: UIImage?
 
+    private let accent = Color(red: 123/255, green: 97/255, blue: 255/255)
+
     var body: some View {
         GeometryReader { geo in
-            ZStack(alignment: .bottomTrailing) {
+            ZStack {
+                // Thumbnail
                 Group {
                     if let thumb = thumbnail {
                         Image(uiImage: thumb)
@@ -27,17 +31,41 @@ struct MatchThumbnailView: View {
                 .frame(width: geo.size.width, height: geo.size.height)
                 .clipped()
 
-                // Score badge
-                Text("\(scorePercent)%")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 3)
-                    .background(
-                        Color(red: 123/255, green: 97/255, blue: 255/255).opacity(0.9)
-                    )
-                    .clipShape(Capsule())
-                    .padding(6)
+                // Dimming overlay when selected
+                if isSelected {
+                    Color.black.opacity(0.3)
+                }
+
+                // Score badge (bottom-trailing)
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Text("\(scorePercent)%")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 3)
+                            .background(accent.opacity(0.9))
+                            .clipShape(Capsule())
+                            .padding(6)
+                    }
+                }
+
+                // Selection checkmark (top-trailing)
+                if isSelected {
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 24))
+                                .foregroundColor(accent)
+                                .background(Circle().fill(Color.white).padding(2))
+                                .padding(8)
+                        }
+                        Spacer()
+                    }
+                }
             }
             .task(id: assetIdentifier) {
                 let scale = UIScreen.main.scale
@@ -53,6 +81,10 @@ struct MatchThumbnailView: View {
         }
         .aspectRatio(1, contentMode: .fit)
         .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(accent, lineWidth: isSelected ? 3 : 0)
+        )
     }
 
     // MARK: - Thumbnail Loading with Cache

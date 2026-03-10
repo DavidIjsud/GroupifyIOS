@@ -9,6 +9,7 @@ struct MatchUiModel: Identifiable {
     let id = UUID()
     let assetIdentifier: String
     let scorePercent: Int
+    var isSelected: Bool = false
 }
 
 struct QueryFaceUiModel: Identifiable {
@@ -75,6 +76,12 @@ struct PhotoMatchUiState {
     var filteredMatches: [MatchUiModel] {
         allMatches.filter { Double($0.scorePercent) / 100.0 >= matchSensitivity }
     }
+
+    var selectedMatches: [MatchUiModel] {
+        matches.filter(\.isSelected)
+    }
+
+    var hasSelectedMatches: Bool { !selectedMatches.isEmpty }
 }
 
 // MARK: - ViewModel
@@ -381,6 +388,19 @@ final class PhotoMatchViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Match Selection
+
+    func onToggleMatchSelection(id: UUID) {
+        guard let idx = state.matches.firstIndex(where: { $0.id == id }) else { return }
+        state.matches[idx].isSelected.toggle()
+    }
+
+    func onClearMatchSelection() {
+        for i in state.matches.indices {
+            state.matches[i].isSelected = false
+        }
+    }
+
     // MARK: - Sharing
 
     func onShareMatches() {
@@ -388,7 +408,11 @@ final class PhotoMatchViewModel: ObservableObject {
         Task {
             state.isSearching = true
             defer { state.isSearching = false }
-            let ids = Array(state.matches.prefix(25).map(\.assetIdentifier))
+            // Share selected items, or all if none selected.
+            let toShare = state.hasSelectedMatches
+                ? state.selectedMatches
+                : Array(state.matches.prefix(25))
+            let ids = toShare.map(\.assetIdentifier)
             do {
                 let urls = try await photoService.exportForSharing(assetIdentifiers: ids)
                 state.shareURLs = urls

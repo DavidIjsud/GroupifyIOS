@@ -64,13 +64,26 @@ struct PhotoMatchScreen: View {
                         Button {
                             viewModel.onShareMatches()
                         } label: {
-                            Image(systemName: "square.and.arrow.up")
-                                .font(.system(size: 20, weight: .semibold))
-                                .foregroundColor(.white)
-                                .frame(width: 56, height: 56)
-                                .background(Theme.accent)
-                                .clipShape(Circle())
-                                .shadow(color: Theme.accent.opacity(0.4), radius: 8, y: 4)
+                            ZStack(alignment: .topTrailing) {
+                                Image(systemName: "square.and.arrow.up")
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .foregroundColor(.white)
+                                    .frame(width: 56, height: 56)
+                                    .background(Theme.accent)
+                                    .clipShape(Circle())
+                                    .shadow(color: Theme.accent.opacity(0.4), radius: 8, y: 4)
+
+                                // Selection count badge
+                                if viewModel.state.hasSelectedMatches {
+                                    Text("\(viewModel.state.selectedMatches.count)")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundColor(.white)
+                                        .frame(minWidth: 20, minHeight: 20)
+                                        .background(Color.red)
+                                        .clipShape(Circle())
+                                        .offset(x: 4, y: -4)
+                                }
+                            }
                         }
                         .padding(.trailing, 20)
                         .padding(.bottom, 24)
@@ -444,26 +457,45 @@ struct PhotoMatchScreen: View {
             ForEach(viewModel.state.matches) { match in
                 MatchThumbnailView(
                     assetIdentifier: match.assetIdentifier,
-                    scorePercent: match.scorePercent
+                    scorePercent: match.scorePercent,
+                    isSelected: match.isSelected
                 )
+                .onTapGesture {
+                    viewModel.onToggleMatchSelection(id: match.id)
+                }
             }
         }
     }
 
     private var shareMatchesButton: some View {
-        Button {
-            viewModel.onShareMatches()
-        } label: {
-            HStack(spacing: 8) {
-                Image(systemName: "square.and.arrow.up")
-                Text(L10n.shareMatches(count: viewModel.state.matches.count))
-                    .fontWeight(.semibold)
+        VStack(spacing: 10) {
+            if viewModel.state.hasSelectedMatches {
+                Button {
+                    viewModel.onClearMatchSelection()
+                } label: {
+                    Text(L10n.clearSelection)
+                        .font(.subheadline.weight(.medium))
+                        .foregroundColor(Theme.secondaryText)
+                }
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-            .foregroundColor(.white)
-            .background(Theme.accent)
-            .cornerRadius(Theme.cornerRadius)
+
+            Button {
+                viewModel.onShareMatches()
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "square.and.arrow.up")
+                    let count = viewModel.state.hasSelectedMatches
+                        ? viewModel.state.selectedMatches.count
+                        : viewModel.state.matches.count
+                    Text(L10n.shareMatches(count: count))
+                        .fontWeight(.semibold)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .foregroundColor(.white)
+                .background(Theme.accent)
+                .cornerRadius(Theme.cornerRadius)
+            }
         }
         .background(
             GeometryReader { geo in

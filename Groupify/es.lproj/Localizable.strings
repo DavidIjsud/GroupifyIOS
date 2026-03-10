@@ -56,6 +56,9 @@
 "error.thumbnailFailed" = "No se pudo cargar la miniatura de la foto";
 "error.fullImageFailed" = "No se pudo cargar la foto completa";
 
+// MARK: - Match Selection
+"matches.clearSelection" = "Limpiar selección";
+
 // MARK: - Permission Dialogs
 "perm.preTitle" = "Busca en toda tu galería";
 "perm.preMessage" = "Groupify necesita acceso completo a tu fototeca para encontrar fotos coincidentes en toda tu galería.";
