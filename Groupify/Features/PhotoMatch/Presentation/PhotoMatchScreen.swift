@@ -12,8 +12,16 @@ private enum Theme {
 
 // MARK: - Screen
 
+private struct ShareButtonVisibleKey: PreferenceKey {
+    static let defaultValue: Bool = false
+    static func reduce(value: inout Bool, nextValue: () -> Bool) {
+        value = value || nextValue()
+    }
+}
+
 struct PhotoMatchScreen: View {
     @StateObject private var viewModel = PhotoMatchViewModel()
+    @State private var isShareButtonVisible = false
 
     var body: some View {
         ZStack {
@@ -42,6 +50,34 @@ struct PhotoMatchScreen: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
                 .padding(.bottom, 32)
+            }
+            .onPreferenceChange(ShareButtonVisibleKey.self) { visible in
+                isShareButtonVisible = visible
+            }
+
+            // Floating share button
+            if !viewModel.state.matches.isEmpty && !isShareButtonVisible {
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button {
+                            viewModel.onShareMatches()
+                        } label: {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.system(size: 20, weight: .semibold))
+                                .foregroundColor(.white)
+                                .frame(width: 56, height: 56)
+                                .background(Theme.accent)
+                                .clipShape(Circle())
+                                .shadow(color: Theme.accent.opacity(0.4), radius: 8, y: 4)
+                        }
+                        .padding(.trailing, 20)
+                        .padding(.bottom, 24)
+                    }
+                }
+                .transition(.opacity)
+                .animation(.easeInOut(duration: 0.2), value: isShareButtonVisible)
             }
 
             // Inline message banner
@@ -429,6 +465,14 @@ struct PhotoMatchScreen: View {
             .background(Theme.accent)
             .cornerRadius(Theme.cornerRadius)
         }
+        .background(
+            GeometryReader { geo in
+                Color.clear.preference(
+                    key: ShareButtonVisibleKey.self,
+                    value: geo.frame(in: .global).minY < UIScreen.main.bounds.height
+                )
+            }
+        )
     }
 
     // MARK: - Overlays
