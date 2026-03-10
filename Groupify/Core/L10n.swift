@@ -181,6 +181,33 @@ enum L10n {
         NSLocalizedString("button.resetIndex", comment: "DEBUG button to clear the face index")
     }
 
+    // MARK: - Permission Dialogs
+
+    nonisolated static var permPreTitle: String {
+        NSLocalizedString("perm.preTitle", comment: "Pre-permission dialog title")
+    }
+    nonisolated static var permPreMessage: String {
+        NSLocalizedString("perm.preMessage", comment: "Pre-permission dialog message")
+    }
+    nonisolated static var permContinue: String {
+        NSLocalizedString("perm.continue", comment: "Continue button on permission dialogs")
+    }
+    nonisolated static var permLimitedTitle: String {
+        NSLocalizedString("perm.limitedTitle", comment: "Limited access dialog title")
+    }
+    nonisolated static var permLimitedMessage: String {
+        NSLocalizedString("perm.limitedMessage", comment: "Limited access dialog message")
+    }
+    nonisolated static var permDeniedTitle: String {
+        NSLocalizedString("perm.deniedTitle", comment: "Denied access dialog title")
+    }
+    nonisolated static var permDeniedMessage: String {
+        NSLocalizedString("perm.deniedMessage", comment: "Denied access dialog message")
+    }
+    nonisolated static var permNotNow: String {
+        NSLocalizedString("perm.notNow", comment: "Not now button on denied dialog")
+    }
+
     // MARK: - Results
 
     /// Uses stringsdict for plurals: "3 Similar Matches Found"

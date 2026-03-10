@@ -56,5 +56,15 @@
 "error.thumbnailFailed" = "Failed to load photo thumbnail";
 "error.fullImageFailed" = "Failed to load full photo";
 
+// MARK: - Permission Dialogs
+"perm.preTitle" = "Search your entire gallery";
+"perm.preMessage" = "Groupify needs full photo library access to find matching photos across your gallery.";
+"perm.continue" = "Continue";
+"perm.limitedTitle" = "Limited access may reduce results";
+"perm.limitedMessage" = "Groupify can only search the photos you selected. Allow full access for better matching across your gallery.";
+"perm.deniedTitle" = "Full photo access required";
+"perm.deniedMessage" = "To search your gallery and find matching faces, please allow full photo library access in Settings.";
+"perm.notNow" = "Not now";
+
 // MARK: - Results (plural handled via stringsdict)
 "results.matchesFound" = "%d Similar Matches Found";

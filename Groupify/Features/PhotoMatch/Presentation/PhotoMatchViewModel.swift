@@ -51,6 +51,11 @@ struct PhotoMatchUiState {
     var showShareSheet: Bool = false
     var shareURLs: [URL] = []
 
+    // Permission dialogs
+    var showPrePermissionDialog: Bool = false
+    var showLimitedAccessDialog: Bool = false
+    var showDeniedAccessDialog: Bool = false
+
     // Derived
     var hasPhoto: Bool { selectedImage != nil }
     var isCameraAvailable: Bool { UIImagePickerController.isSourceTypeAvailable(.camera) }
@@ -268,26 +273,49 @@ final class PhotoMatchViewModel: ObservableObject {
             return
         }
 
+        let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        switch status {
+        case .authorized:
+            Task { await runPipeline() }
+        case .limited:
+            Task { await runPipeline() }
+        case .notDetermined:
+            // Show pre-permission explanation before triggering the system prompt.
+            state.showPrePermissionDialog = true
+        case .denied, .restricted:
+            state.showDeniedAccessDialog = true
+        @unknown default:
+            state.userMessage = L10n.unableToAccessPhotoLibrary
+        }
+    }
+
+    /// Called when user taps "Continue" on the pre-permission dialog.
+    func onConfirmPrePermission() {
+        state.showPrePermissionDialog = false
         Task {
-            let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
-            switch status {
-            case .authorized, .limited:
+            let result = await photoService.requestAuthorization()
+            switch result {
+            case .authorized:
                 await runPipeline()
-            case .notDetermined:
-                let granted = await photoService.requestAuthorization()
-                if granted == .authorized || granted == .limited {
-                    await runPipeline()
-                } else {
-                    state.userMessage = L10n.photoLibraryAccessRequired
-                    state.showSettingsAction = true
-                }
+            case .limited:
+                state.showLimitedAccessDialog = true
             case .denied, .restricted:
-                state.userMessage = L10n.photoLibraryAccessDenied
-                state.showSettingsAction = true
+                state.showDeniedAccessDialog = true
             @unknown default:
                 state.userMessage = L10n.unableToAccessPhotoLibrary
             }
         }
+    }
+
+    /// Called when user taps "Continue" on the limited-access dialog.
+    func onContinueWithLimitedAccess() {
+        state.showLimitedAccessDialog = false
+        Task { await runPipeline() }
+    }
+
+    /// Called when user taps "Not now" on the denied dialog.
+    func onDismissDeniedDialog() {
+        state.showDeniedAccessDialog = false
     }
 
     private func runPipeline() async {

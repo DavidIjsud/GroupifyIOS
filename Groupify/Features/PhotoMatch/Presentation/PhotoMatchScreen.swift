@@ -90,6 +90,47 @@ struct PhotoMatchScreen: View {
                 ios16PickerOverlay
             }
         }
+        // Pre-permission explanation dialog
+        .alert(
+            L10n.permPreTitle,
+            isPresented: $viewModel.state.showPrePermissionDialog
+        ) {
+            Button(L10n.permContinue) {
+                viewModel.onConfirmPrePermission()
+            }
+        } message: {
+            Text(L10n.permPreMessage)
+        }
+        // Limited access warning dialog
+        .alert(
+            L10n.permLimitedTitle,
+            isPresented: $viewModel.state.showLimitedAccessDialog
+        ) {
+            Button(L10n.permContinue) {
+                viewModel.onContinueWithLimitedAccess()
+            }
+            Button(L10n.openSettings) {
+                viewModel.state.showLimitedAccessDialog = false
+                viewModel.onOpenSettingsTapped()
+            }
+        } message: {
+            Text(L10n.permLimitedMessage)
+        }
+        // Denied access dialog
+        .alert(
+            L10n.permDeniedTitle,
+            isPresented: $viewModel.state.showDeniedAccessDialog
+        ) {
+            Button(L10n.openSettings) {
+                viewModel.state.showDeniedAccessDialog = false
+                viewModel.onOpenSettingsTapped()
+            }
+            Button(L10n.permNotNow, role: .cancel) {
+                viewModel.onDismissDeniedDialog()
+            }
+        } message: {
+            Text(L10n.permDeniedMessage)
+        }
     }
 
     // MARK: - Header

@@ -56,5 +56,15 @@
 "error.thumbnailFailed" = "No se pudo cargar la miniatura de la foto";
 "error.fullImageFailed" = "No se pudo cargar la foto completa";
 
+// MARK: - Permission Dialogs
+"perm.preTitle" = "Busca en toda tu galería";
+"perm.preMessage" = "Groupify necesita acceso completo a tu fototeca para encontrar fotos coincidentes en toda tu galería.";
+"perm.continue" = "Continuar";
+"perm.limitedTitle" = "El acceso limitado puede reducir resultados";
+"perm.limitedMessage" = "Groupify solo puede buscar en las fotos que seleccionaste. Permite acceso completo para mejores resultados en toda tu galería.";
+"perm.deniedTitle" = "Se requiere acceso completo a fotos";
+"perm.deniedMessage" = "Para buscar en tu galería y encontrar rostros coincidentes, permite el acceso completo a la fototeca en Ajustes.";
+"perm.notNow" = "Ahora no";
+
 // MARK: - Results (plural handled via stringsdict)
 "results.matchesFound" = "%d coincidencias similares encontradas";
