@@ -6,47 +6,86 @@ import Foundation
 /// sorting the full result set.
 enum EmbeddingSearchEngine {
 
-    /// Returns the top `k` matches for a set of query embeddings against the index.
+    /// Returns the top matches for a set of query embeddings against the index.
     /// For each indexed photo (asset), the best similarity across all query vectors
     /// and all faces in that asset is kept.
+    ///
+    /// `kPerFace` controls how many results per query face are retained. The total
+    /// cap is `kPerFace × queryVectors.count`, ensuring each selected face gets
+    /// fair representation in the final results.
     ///
     /// - Complexity: O(N·Q) where N = index size, Q = query count.
     nonisolated static func topKMatches(
         queryVectors: [[Float]],
         indexedFaces: [IndexedFace],
-        k: Int = 50
+        kPerFace: Int = 75
     ) -> [PhotoMatch] {
         guard !queryVectors.isEmpty, !indexedFaces.isEmpty else { return [] }
 
-        // Phase 1: Compute best score per asset.
-        var bestScores = [String: Float]()
-        bestScores.reserveCapacity(min(indexedFaces.count, k * 2))
+        let queryCount = queryVectors.count
+
+        #if DEBUG
+        print("[EmbeddingSearchEngine] Query faces: \(queryCount), indexed faces: \(indexedFaces.count)")
+        #endif
+
+        // Phase 1: Compute best score per asset PER query face.
+        // This ensures each query face contributes its own top matches.
+        var perFaceScores = [[String: Float]](repeating: [:], count: queryCount)
 
         for indexed in indexedFaces {
             let iVec = indexed.embedding.values
-            var best: Float = 0
-            for qVec in queryVectors {
-                let score = vDSPDotProduct(qVec, iVec)
-                if score > best { best = score }
-            }
-            let clamped = max(0, best)
-            if let existing = bestScores[indexed.assetIdentifier] {
-                if clamped > existing {
-                    bestScores[indexed.assetIdentifier] = clamped
+            for (qIdx, qVec) in queryVectors.enumerated() {
+                let score = max(0, vDSPDotProduct(qVec, iVec))
+                let assetId = indexed.assetIdentifier
+                if let existing = perFaceScores[qIdx][assetId] {
+                    if score > existing {
+                        perFaceScores[qIdx][assetId] = score
+                    }
+                } else {
+                    perFaceScores[qIdx][assetId] = score
                 }
-            } else {
-                bestScores[indexed.assetIdentifier] = clamped
             }
         }
 
-        // Phase 2: Top-K selection via min-heap.
-        var heap = MinHeap(capacity: k)
-        for (assetId, score) in bestScores {
+        #if DEBUG
+        for (qIdx, scores) in perFaceScores.enumerated() {
+            let nonZero = scores.values.filter { $0 > 0 }.count
+            print("[EmbeddingSearchEngine]   Face \(qIdx): \(nonZero) assets with score > 0")
+        }
+        #endif
+
+        // Phase 2: Merge — for each asset, keep the best score across all faces.
+        var mergedScores = [String: Float]()
+        for faceScores in perFaceScores {
+            for (assetId, score) in faceScores {
+                if let existing = mergedScores[assetId] {
+                    if score > existing {
+                        mergedScores[assetId] = score
+                    }
+                } else {
+                    mergedScores[assetId] = score
+                }
+            }
+        }
+
+        #if DEBUG
+        print("[EmbeddingSearchEngine] Merged unique assets: \(mergedScores.count)")
+        #endif
+
+        // Phase 3: Top-K selection — scale K by number of query faces.
+        let totalK = kPerFace * queryCount
+        var heap = MinHeap(capacity: totalK)
+        for (assetId, score) in mergedScores {
             heap.insert(assetId: assetId, score: score)
         }
 
-        // Extract results in descending score order.
-        return heap.extractSortedDescending()
+        let results = heap.extractSortedDescending()
+
+        #if DEBUG
+        print("[EmbeddingSearchEngine] Final results: \(results.count) (cap: \(totalK))")
+        #endif
+
+        return results
     }
 
     // MARK: - vDSP Dot Product
