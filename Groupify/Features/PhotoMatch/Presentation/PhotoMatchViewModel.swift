@@ -411,7 +411,7 @@ final class PhotoMatchViewModel: ObservableObject {
             // Share selected items, or all if none selected.
             let toShare = state.hasSelectedMatches
                 ? state.selectedMatches
-                : Array(state.matches.prefix(25))
+                : state.matches
             let ids = toShare.map(\.assetIdentifier)
             do {
                 let urls = try await photoService.exportForSharing(assetIdentifiers: ids)
