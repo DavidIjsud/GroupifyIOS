@@ -332,6 +332,7 @@ final class PhotoMatchViewModel: ObservableObject {
         }
 
         let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        checkPhotoPermission()
         switch status {
         case .authorized:
             Task { await runPipeline() }
@@ -352,6 +353,7 @@ final class PhotoMatchViewModel: ObservableObject {
         state.showPrePermissionDialog = false
         Task {
             let result = await photoService.requestAuthorization()
+            checkPhotoPermission()
             switch result {
             case .authorized:
                 await runPipeline()
@@ -368,12 +370,14 @@ final class PhotoMatchViewModel: ObservableObject {
     /// Called when user taps "Continue" on the limited-access dialog.
     func onContinueWithLimitedAccess() {
         state.showLimitedAccessDialog = false
+        checkPhotoPermission()
         Task { await runPipeline() }
     }
 
     /// Called when user taps "Not now" on the denied dialog.
     func onDismissDeniedDialog() {
         state.showDeniedAccessDialog = false
+        checkPhotoPermission()
     }
 
     private func runPipeline() async {
