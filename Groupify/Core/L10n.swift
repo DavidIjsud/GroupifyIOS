@@ -214,6 +214,21 @@ enum L10n {
         NSLocalizedString("perm.notNow", comment: "Not now button on denied dialog")
     }
 
+    // MARK: - Permission Warning Card
+
+    nonisolated static var warningLimitedTitle: String {
+        NSLocalizedString("warning.limitedTitle", comment: "Limited access warning card title")
+    }
+    nonisolated static var warningLimitedMessage: String {
+        NSLocalizedString("warning.limitedMessage", comment: "Limited access warning card message")
+    }
+    nonisolated static var warningDeniedTitle: String {
+        NSLocalizedString("warning.deniedTitle", comment: "Denied access warning card title")
+    }
+    nonisolated static var warningDeniedMessage: String {
+        NSLocalizedString("warning.deniedMessage", comment: "Denied access warning card message")
+    }
+
     // MARK: - Results
 
     /// Uses stringsdict for plurals: "3 Similar Matches Found"

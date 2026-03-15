@@ -30,6 +30,14 @@ struct PhotoMatchScreen: View {
             ScrollView {
                 VStack(spacing: 24) {
                     headerSection
+
+                    // Permission warning card
+                    if viewModel.state.shouldShowWarningCard {
+                        permissionWarningCard
+                            .transition(.opacity.combined(with: .move(edge: .top)))
+                            .animation(.easeInOut(duration: 0.25), value: viewModel.state.shouldShowWarningCard)
+                    }
+
                     queryPhotoCard
                     if !viewModel.state.queryFaces.isEmpty {
                         faceChipsSection
@@ -201,6 +209,19 @@ struct PhotoMatchScreen: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 8)
+    }
+
+    // MARK: - Permission Warning Card
+
+    private var permissionWarningCard: some View {
+        let isLimited = viewModel.state.permissionWarning == .limited
+        return PermissionWarningCard(
+            title: isLimited ? L10n.warningLimitedTitle : L10n.warningDeniedTitle,
+            message: isLimited ? L10n.warningLimitedMessage : L10n.warningDeniedMessage,
+            buttonLabel: L10n.openSettings,
+            onButtonTapped: { viewModel.onOpenSettingsTapped() },
+            onDismiss: { viewModel.onDismissWarningCard() }
+        )
     }
 
     // MARK: - Query Photo Card (with bbox overlay)

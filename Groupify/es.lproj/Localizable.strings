@@ -69,5 +69,11 @@
 "perm.deniedMessage" = "Para buscar en tu galería y encontrar rostros coincidentes, permite el acceso completo a la fototeca en Ajustes.";
 "perm.notNow" = "Ahora no";
 
+// MARK: - Permission Warning Card
+"warning.limitedTitle" = "Acceso limitado a la galería";
+"warning.limitedMessage" = "PhotoMatch necesita acceso completo a tu galería de fotos para encontrar todas las coincidencias. Concede acceso en los ajustes de tu dispositivo para la mejor experiencia.";
+"warning.deniedTitle" = "Se requiere acceso a fotos";
+"warning.deniedMessage" = "PhotoMatch necesita acceso a tu galería de fotos para buscar coincidencias. Por favor, permite el acceso en los ajustes de tu dispositivo.";
+
 // MARK: - Results (plural handled via stringsdict)
 "results.matchesFound" = "%d coincidencias similares encontradas";

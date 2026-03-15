@@ -3,6 +3,14 @@ import Combine
 import Photos
 import UIKit
 
+// MARK: - Permission Warning Level
+
+enum PhotoPermissionWarning {
+    case none
+    case limited
+    case denied
+}
+
 // MARK: - UI Models
 
 struct MatchUiModel: Identifiable {
@@ -57,6 +65,10 @@ struct PhotoMatchUiState {
     var showLimitedAccessDialog: Bool = false
     var showDeniedAccessDialog: Bool = false
 
+    // Permission warning card
+    var permissionWarning: PhotoPermissionWarning = .none
+    var isWarningCardDismissed: Bool = false
+
     // Derived
     var hasPhoto: Bool { selectedImage != nil }
     var isCameraAvailable: Bool { UIImagePickerController.isSourceTypeAvailable(.camera) }
@@ -82,6 +94,10 @@ struct PhotoMatchUiState {
     }
 
     var hasSelectedMatches: Bool { !selectedMatches.isEmpty }
+
+    var shouldShowWarningCard: Bool {
+        permissionWarning != .none && !isWarningCardDismissed
+    }
 }
 
 // MARK: - ViewModel
@@ -125,6 +141,41 @@ final class PhotoMatchViewModel: ObservableObject {
             state.userMessage = warning
         }
 
+        // Check initial photo permission state for the warning card.
+        checkPhotoPermission()
+
+        // Re-check when the app returns from Settings.
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.willEnterForegroundNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.checkPhotoPermission()
+        }
+    }
+
+    // MARK: - Permission Warning Card
+
+    func checkPhotoPermission() {
+        let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        switch status {
+        case .limited:
+            state.permissionWarning = .limited
+        case .denied, .restricted:
+            state.permissionWarning = .denied
+        case .authorized:
+            state.permissionWarning = .none
+        case .notDetermined:
+            state.permissionWarning = .none
+        @unknown default:
+            state.permissionWarning = .none
+        }
+        // Reset dismiss flag when permission level changes
+        state.isWarningCardDismissed = false
+    }
+
+    func onDismissWarningCard() {
+        state.isWarningCardDismissed = true
     }
 
     // MARK: - Photo Picking

@@ -69,5 +69,11 @@
 "perm.deniedMessage" = "To search your gallery and find matching faces, please allow full photo library access in Settings.";
 "perm.notNow" = "Not now";
 
+// MARK: - Permission Warning Card
+"warning.limitedTitle" = "Limited gallery access";
+"warning.limitedMessage" = "PhotoMatch needs full access to your photo gallery to find all matching photos. Grant access in your device settings for the best experience.";
+"warning.deniedTitle" = "Photo access required";
+"warning.deniedMessage" = "PhotoMatch needs access to your photo gallery to search for matching photos. Please allow access in your device settings.";
+
 // MARK: - Results (plural handled via stringsdict)
 "results.matchesFound" = "%d Similar Matches Found";
