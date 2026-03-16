@@ -63,38 +63,58 @@ struct PhotoMatchScreen: View {
                 isShareButtonVisible = visible
             }
 
-            // Floating share button
+            // Floating action buttons
             if !viewModel.state.matches.isEmpty && !isShareButtonVisible {
                 VStack {
                     Spacer()
                     HStack {
                         Spacer()
-                        Button {
-                            viewModel.onShareMatches()
-                        } label: {
-                            ZStack(alignment: .topTrailing) {
-                                Image(systemName: "square.and.arrow.up")
-                                    .font(.system(size: 20, weight: .semibold))
-                                    .foregroundColor(.white)
-                                    .frame(width: 56, height: 56)
-                                    .background(Theme.accent)
-                                    .clipShape(Circle())
-                                    .shadow(color: Theme.accent.opacity(0.4), radius: 8, y: 4)
-
-                                // Selection count badge
-                                if viewModel.state.hasSelectedMatches {
-                                    Text("\(viewModel.state.selectedMatches.count)")
-                                        .font(.system(size: 11, weight: .bold))
+                        VStack(spacing: 12) {
+                            // Clear selection button — above the share FAB
+                            if viewModel.state.hasSelectedMatches {
+                                Button {
+                                    viewModel.onClearMatchSelection()
+                                } label: {
+                                    Image(systemName: "xmark")
+                                        .font(.system(size: 16, weight: .bold))
                                         .foregroundColor(.white)
-                                        .frame(minWidth: 20, minHeight: 20)
-                                        .background(Color.red)
+                                        .frame(width: 40, height: 40)
+                                        .background(Color.white.opacity(0.15))
                                         .clipShape(Circle())
-                                        .offset(x: 4, y: -4)
+                                        .overlay(Circle().stroke(Color.white.opacity(0.25), lineWidth: 1))
+                                }
+                                .transition(.scale.combined(with: .opacity))
+                            }
+
+                            // Share FAB
+                            Button {
+                                viewModel.onShareMatches()
+                            } label: {
+                                ZStack(alignment: .topTrailing) {
+                                    Image(systemName: "square.and.arrow.up")
+                                        .font(.system(size: 20, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .frame(width: 56, height: 56)
+                                        .background(Theme.accent)
+                                        .clipShape(Circle())
+                                        .shadow(color: Theme.accent.opacity(0.4), radius: 8, y: 4)
+
+                                    // Selection count badge
+                                    if viewModel.state.hasSelectedMatches {
+                                        Text("\(viewModel.state.selectedMatches.count)")
+                                            .font(.system(size: 11, weight: .bold))
+                                            .foregroundColor(.white)
+                                            .frame(minWidth: 20, minHeight: 20)
+                                            .background(Color.red)
+                                            .clipShape(Circle())
+                                            .offset(x: 4, y: -4)
+                                    }
                                 }
                             }
                         }
                         .padding(.trailing, 20)
                         .padding(.bottom, 24)
+                        .animation(.easeInOut(duration: 0.2), value: viewModel.state.hasSelectedMatches)
                     }
                 }
                 .transition(.opacity)
