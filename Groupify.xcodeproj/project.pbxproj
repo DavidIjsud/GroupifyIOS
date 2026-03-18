@@ -418,21 +418,25 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = DATKZA8T3N;
+				DEVELOPMENT_TEAM = U8UVJJVY74;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Groupify/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Groupify;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Groupify needs camera access to take a photo for matching.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Groupify needs to save temporary images for sharing.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Groupify needs access to your photo library to find matching photos.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = la.manzanaVerdeApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.palmyrasoft.groupify;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -455,21 +459,25 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = DATKZA8T3N;
+				DEVELOPMENT_TEAM = U8UVJJVY74;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Groupify/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Groupify;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Groupify needs camera access to take a photo for matching.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Groupify needs to save temporary images for sharing.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Groupify needs access to your photo library to find matching photos.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = la.manzanaVerdeApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.palmyrasoft.groupify;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

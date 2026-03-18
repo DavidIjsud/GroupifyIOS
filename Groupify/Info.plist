@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Groupify needs to save temporary images for sharing.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Groupify needs access to your photo library to find matching photos.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Groupify needs camera access to take a photo for matching.</string>
-</dict>
+<dict/>
 </plist>
