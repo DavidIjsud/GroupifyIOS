@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		E45782352F5938BF00BC524B /* TensorFlowLiteSwift in Frameworks */ = {isa = PBXBuildFile; productRef = E45782342F5938BF00BC524B /* TensorFlowLiteSwift */; };
+		E4D2019D2F74E603002FFE3D /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = E4D2019C2F74E603002FFE3D /* FirebaseAnalytics */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -41,6 +42,20 @@
 			);
 			target = E488F2832F57799A00E7FE85 /* Groupify */;
 		};
+		E4D201992F74E4FB002FFE3D /* Exceptions for "Groupify" folder in "GroupifyTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"GoogleService-Info.plist",
+			);
+			target = E488F2902F57799B00E7FE85 /* GroupifyTests */;
+		};
+		E4D2019A2F74E4FB002FFE3D /* Exceptions for "Groupify" folder in "GroupifyUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"GoogleService-Info.plist",
+			);
+			target = E488F29A2F57799B00E7FE85 /* GroupifyUITests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -48,6 +63,8 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				E402BE7E2F57CDB900CC8A0F /* Exceptions for "Groupify" folder in "Groupify" target */,
+				E4D201992F74E4FB002FFE3D /* Exceptions for "Groupify" folder in "GroupifyTests" target */,
+				E4D2019A2F74E4FB002FFE3D /* Exceptions for "Groupify" folder in "GroupifyUITests" target */,
 			);
 			path = Groupify;
 			sourceTree = "<group>";
@@ -69,6 +86,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4D2019D2F74E603002FFE3D /* FirebaseAnalytics in Frameworks */,
 				E45782352F5938BF00BC524B /* TensorFlowLiteSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -131,6 +149,7 @@
 			name = Groupify;
 			packageProductDependencies = (
 				E45782342F5938BF00BC524B /* TensorFlowLiteSwift */,
+				E4D2019C2F74E603002FFE3D /* FirebaseAnalytics */,
 			);
 			productName = Groupify;
 			productReference = E488F2842F57799A00E7FE85 /* Groupify.app */;
@@ -217,6 +236,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				E45782332F5938BF00BC524B /* XCRemoteSwiftPackageReference "TensorFlowLiteSwift" */,
+				E4D2019B2F74E603002FFE3D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E488F2852F57799A00E7FE85 /* Products */;
@@ -625,6 +645,14 @@
 				minimumVersion = 2.14.0;
 			};
 		};
+		E4D2019B2F74E603002FFE3D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.11.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -632,6 +660,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E45782332F5938BF00BC524B /* XCRemoteSwiftPackageReference "TensorFlowLiteSwift" */;
 			productName = TensorFlowLiteSwift;
+		};
+		E4D2019C2F74E603002FFE3D /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E4D2019B2F74E603002FFE3D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
