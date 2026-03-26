@@ -18,11 +18,12 @@ struct SearchByPhotoUseCase: Sendable {
     }
 
     /// Searches the index using one or more selected face bounding boxes from
-    /// the query image. For each indexed photo, keeps the best similarity score
-    /// across all selected query faces.
+    /// the query image. Returns all matches above the given similarity threshold,
+    /// sorted by score descending.
     nonisolated func execute(
         queryImage: UIImage,
-        selectedFaces: [FaceBoundingBox]
+        selectedFaces: [FaceBoundingBox],
+        threshold: Float
     ) async throws -> [PhotoMatch] {
         guard !selectedFaces.isEmpty else {
             throw SearchError.noFacesSelected
@@ -44,12 +45,13 @@ struct SearchByPhotoUseCase: Sendable {
             throw SearchError.cropFailed
         }
 
-        // 2. Load index and rank using Accelerate-backed Top-K search.
+        // 2. Load index and find all matches above threshold.
         let index = try await repository.load()
 
-        return EmbeddingSearchEngine.topKMatches(
+        return EmbeddingSearchEngine.matchesAboveThreshold(
             queryVectors: queryVectors,
-            indexedFaces: index
+            indexedFaces: index,
+            threshold: threshold
         )
     }
 }

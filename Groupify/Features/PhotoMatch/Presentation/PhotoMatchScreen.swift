@@ -47,7 +47,7 @@ struct PhotoMatchScreen: View {
                     takePhotoButton
                     startDetectionButton
                     if !viewModel.state.matches.isEmpty {
-                        Text(L10n.similarMatchesFound(count: viewModel.state.matches.count))
+                        Text(L10n.similarMatchesFound(count: viewModel.state.allMatches.count))
                             .font(.subheadline.weight(.semibold))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -504,6 +504,20 @@ struct PhotoMatchScreen: View {
                 .onTapGesture {
                     viewModel.onToggleMatchSelection(id: match.id)
                 }
+                .onAppear {
+                    // Trigger next page when the last item appears
+                    if match.id == viewModel.state.matches.last?.id {
+                        viewModel.onLoadMoreMatches()
+                    }
+                }
+            }
+
+            // Loading indicator for next page
+            if viewModel.state.hasMoreMatches {
+                ProgressView()
+                    .tint(Theme.accent)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
             }
         }
     }
@@ -527,7 +541,7 @@ struct PhotoMatchScreen: View {
                     Image(systemName: "square.and.arrow.up")
                     let count = viewModel.state.hasSelectedMatches
                         ? viewModel.state.selectedMatches.count
-                        : viewModel.state.matches.count
+                        : viewModel.state.allMatches.count
                     Text(L10n.shareMatches(count: count))
                         .fontWeight(.semibold)
                 }

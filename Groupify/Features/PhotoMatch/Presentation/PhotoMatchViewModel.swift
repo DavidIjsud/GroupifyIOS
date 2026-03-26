@@ -52,9 +52,11 @@ struct PhotoMatchUiState {
 
     // Search
     var isSearching: Bool = false
-    var matchSensitivity: Double = 0.40
+    var matchSensitivity: Float = 0.40
     var allMatches: [MatchUiModel] = []
     var matches: [MatchUiModel] = []
+    var visibleMatchCount: Int = 0
+    var hasMoreMatches: Bool = false
 
     // Sharing
     var showShareSheet: Bool = false
@@ -83,10 +85,6 @@ struct PhotoMatchUiState {
     var focusedBoundingBox: FaceBoundingBox? {
         guard let fid = focusedFaceId else { return nil }
         return queryFaces.first { $0.id == fid }?.boundingBox
-    }
-
-    var filteredMatches: [MatchUiModel] {
-        allMatches.filter { Double($0.scorePercent) / 100.0 >= matchSensitivity }
     }
 
     var selectedMatches: [MatchUiModel] {
@@ -253,6 +251,8 @@ final class PhotoMatchViewModel: ObservableObject {
         state.focusedFaceId = nil
         state.allMatches = []
         state.matches = []
+        state.visibleMatchCount = 0
+        state.hasMoreMatches = false
         clearMessage()
 
         faceDetectionToken += 1
@@ -425,7 +425,8 @@ final class PhotoMatchViewModel: ObservableObject {
         do {
             let results = try await searchUseCase.execute(
                 queryImage: queryImage,
-                selectedFaces: selectedBoxes
+                selectedFaces: selectedBoxes,
+                threshold: state.matchSensitivity
             )
             let models = results.map {
                 MatchUiModel(
@@ -434,7 +435,11 @@ final class PhotoMatchViewModel: ObservableObject {
                 )
             }
             state.allMatches = models
-            state.matches = state.filteredMatches
+            // Load first page
+            let firstPage = min(Self.pageSize, models.count)
+            state.matches = Array(models.prefix(firstPage))
+            state.visibleMatchCount = firstPage
+            state.hasMoreMatches = firstPage < models.count
             if state.matches.isEmpty {
                 state.userMessage = L10n.noSimilarFacesFound
             }
@@ -456,6 +461,23 @@ final class PhotoMatchViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Pagination
+
+    private static let pageSize = 50
+
+    func onLoadMoreMatches() {
+        guard state.hasMoreMatches else { return }
+        let nextCount = min(
+            state.visibleMatchCount + Self.pageSize,
+            state.allMatches.count
+        )
+        guard nextCount > state.visibleMatchCount else { return }
+        let newItems = state.allMatches[state.visibleMatchCount..<nextCount]
+        state.matches.append(contentsOf: newItems)
+        state.visibleMatchCount = nextCount
+        state.hasMoreMatches = nextCount < state.allMatches.count
+    }
+
     // MARK: - Sharing
 
     func onShareMatches() {
@@ -463,10 +485,10 @@ final class PhotoMatchViewModel: ObservableObject {
         Task {
             state.isSearching = true
             defer { state.isSearching = false }
-            // Share selected items, or all if none selected.
+            // Share selected items, or all matches if none selected.
             let toShare = state.hasSelectedMatches
                 ? state.selectedMatches
-                : state.matches
+                : state.allMatches
             let ids = toShare.map(\.assetIdentifier)
             do {
                 let urls = try await photoService.exportForSharing(assetIdentifiers: ids)

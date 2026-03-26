@@ -2,34 +2,35 @@ import Accelerate
 import Foundation
 
 /// Performs fast cosine-similarity search over L2-normalized face embeddings
-/// using Accelerate vDSP for dot products and a Top-K min-heap to avoid
-/// sorting the full result set.
+/// using Accelerate vDSP for dot products. Returns all matches above a
+/// minimum similarity threshold, sorted by score descending.
 enum EmbeddingSearchEngine {
 
-    /// Returns the top matches for a set of query embeddings against the index.
-    /// For each indexed photo (asset), the best similarity across all query vectors
-    /// and all faces in that asset is kept.
+    /// Returns all matches whose best similarity score meets the threshold.
     ///
-    /// `kPerFace` controls how many results per query face are retained. The total
-    /// cap is `kPerFace × queryVectors.count`, ensuring each selected face gets
-    /// fair representation in the final results.
+    /// For each indexed photo (asset), the best similarity across all query
+    /// vectors and all faces in that asset is kept. Results are sorted by
+    /// score descending so the UI can page through them in order.
     ///
+    /// - Parameters:
+    ///   - queryVectors: Embedding vectors for each selected query face.
+    ///   - indexedFaces: The full face index loaded from disk.
+    ///   - threshold: Minimum similarity score (0…1) to include a result.
     /// - Complexity: O(N·Q) where N = index size, Q = query count.
-    nonisolated static func topKMatches(
+    nonisolated static func matchesAboveThreshold(
         queryVectors: [[Float]],
         indexedFaces: [IndexedFace],
-        kPerFace: Int = 75
+        threshold: Float
     ) -> [PhotoMatch] {
         guard !queryVectors.isEmpty, !indexedFaces.isEmpty else { return [] }
 
         let queryCount = queryVectors.count
 
         #if DEBUG
-        print("[EmbeddingSearchEngine] Query faces: \(queryCount), indexed faces: \(indexedFaces.count)")
+        print("[EmbeddingSearchEngine] Query faces: \(queryCount), indexed faces: \(indexedFaces.count), threshold: \(threshold)")
         #endif
 
         // Phase 1: Compute best score per asset PER query face.
-        // This ensures each query face contributes its own top matches.
         var perFaceScores = [[String: Float]](repeating: [:], count: queryCount)
 
         for indexed in indexedFaces {
@@ -72,17 +73,16 @@ enum EmbeddingSearchEngine {
         print("[EmbeddingSearchEngine] Merged unique assets: \(mergedScores.count)")
         #endif
 
-        // Phase 3: Top-K selection — scale K by number of query faces.
-        let totalK = kPerFace * queryCount
-        var heap = MinHeap(capacity: totalK)
-        for (assetId, score) in mergedScores {
-            heap.insert(assetId: assetId, score: score)
+        // Phase 3: Filter by threshold and sort descending.
+        var results = [PhotoMatch]()
+        results.reserveCapacity(mergedScores.count / 2)
+        for (assetId, score) in mergedScores where score >= threshold {
+            results.append(PhotoMatch(assetIdentifier: assetId, similarityScore: score))
         }
-
-        let results = heap.extractSortedDescending()
+        results.sort { $0.similarityScore > $1.similarityScore }
 
         #if DEBUG
-        print("[EmbeddingSearchEngine] Final results: \(results.count) (cap: \(totalK))")
+        print("[EmbeddingSearchEngine] Results above threshold: \(results.count)")
         #endif
 
         return results
@@ -109,80 +109,5 @@ enum EmbeddingSearchEngine {
             }
         }
         return result
-    }
-}
-
-// MARK: - Min-Heap for Top-K
-
-/// A fixed-capacity min-heap that keeps the top K elements by score.
-/// Insert is O(log K). Total selection from N elements is O(N log K).
-private struct MinHeap {
-    private struct Entry {
-        let assetId: String
-        let score: Float
-    }
-
-    private var storage: [Entry]
-    private let capacity: Int
-
-    init(capacity: Int) {
-        self.capacity = max(capacity, 1)
-        self.storage = []
-        self.storage.reserveCapacity(capacity + 1)
-    }
-
-    mutating func insert(assetId: String, score: Float) {
-        let entry = Entry(assetId: assetId, score: score)
-        if storage.count < capacity {
-            storage.append(entry)
-            siftUp(storage.count - 1)
-        } else if score > storage[0].score {
-            // Replace the minimum element.
-            storage[0] = entry
-            siftDown(0)
-        }
-    }
-
-    /// Returns all entries sorted by score descending.
-    mutating func extractSortedDescending() -> [PhotoMatch] {
-        // The heap is small (≤ K), so a simple sort is fine.
-        storage.sort { $0.score > $1.score }
-        return storage.map {
-            PhotoMatch(assetIdentifier: $0.assetId, similarityScore: $0.score)
-        }
-    }
-
-    // MARK: - Heap Operations
-
-    private mutating func siftUp(_ index: Int) {
-        var i = index
-        while i > 0 {
-            let parent = (i - 1) / 2
-            if storage[i].score < storage[parent].score {
-                storage.swapAt(i, parent)
-                i = parent
-            } else {
-                break
-            }
-        }
-    }
-
-    private mutating func siftDown(_ index: Int) {
-        var i = index
-        let count = storage.count
-        while true {
-            let left = 2 * i + 1
-            let right = 2 * i + 2
-            var smallest = i
-            if left < count && storage[left].score < storage[smallest].score {
-                smallest = left
-            }
-            if right < count && storage[right].score < storage[smallest].score {
-                smallest = right
-            }
-            if smallest == i { break }
-            storage.swapAt(i, smallest)
-            i = smallest
-        }
     }
 }
