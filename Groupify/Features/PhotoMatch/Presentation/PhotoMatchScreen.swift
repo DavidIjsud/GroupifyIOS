@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseCrashlytics
 
 // MARK: - Design tokens
 

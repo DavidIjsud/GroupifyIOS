@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		E45782352F5938BF00BC524B /* TensorFlowLiteSwift in Frameworks */ = {isa = PBXBuildFile; productRef = E45782342F5938BF00BC524B /* TensorFlowLiteSwift */; };
 		E4D2019D2F74E603002FFE3D /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = E4D2019C2F74E603002FFE3D /* FirebaseAnalytics */; };
+		E4EACE0D2F7B507D00D3B87C /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = E4EACE0C2F7B507D00D3B87C /* FirebaseCrashlytics */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -86,6 +87,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4EACE0D2F7B507D00D3B87C /* FirebaseCrashlytics in Frameworks */,
 				E4D2019D2F74E603002FFE3D /* FirebaseAnalytics in Frameworks */,
 				E45782352F5938BF00BC524B /* TensorFlowLiteSwift in Frameworks */,
 			);
@@ -114,6 +116,7 @@
 				E488F2862F57799A00E7FE85 /* Groupify */,
 				E488F2942F57799B00E7FE85 /* GroupifyTests */,
 				E488F29E2F57799B00E7FE85 /* GroupifyUITests */,
+				E4EACE0B2F7B507D00D3B87C /* Frameworks */,
 				E488F2852F57799A00E7FE85 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -128,6 +131,13 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		E4EACE0B2F7B507D00D3B87C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -138,6 +148,7 @@
 				E488F2802F57799A00E7FE85 /* Sources */,
 				E488F2812F57799A00E7FE85 /* Frameworks */,
 				E488F2822F57799A00E7FE85 /* Resources */,
+				E4EACE0E2F7B517000D3B87C /* Run Script */,
 			);
 			buildRules = (
 			);
@@ -150,6 +161,7 @@
 			packageProductDependencies = (
 				E45782342F5938BF00BC524B /* TensorFlowLiteSwift */,
 				E4D2019C2F74E603002FFE3D /* FirebaseAnalytics */,
+				E4EACE0C2F7B507D00D3B87C /* FirebaseCrashlytics */,
 			);
 			productName = Groupify;
 			productReference = E488F2842F57799A00E7FE85 /* Groupify.app */;
@@ -273,6 +285,33 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		E4EACE0E2F7B517000D3B87C /* Run Script */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
+				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}.debug.dylib",
+			);
+			name = "Run Script";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		E488F2802F57799A00E7FE85 /* Sources */ = {
@@ -665,6 +704,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E4D2019B2F74E603002FFE3D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalytics;
+		};
+		E4EACE0C2F7B507D00D3B87C /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E4D2019B2F74E603002FFE3D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
