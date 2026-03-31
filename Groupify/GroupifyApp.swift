@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FirebaseCore
+import GoogleMobileAds
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
@@ -14,6 +15,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         FirebaseApp.configure()
+        MobileAds.shared.start(completionHandler: nil)
         return true
     }
 }

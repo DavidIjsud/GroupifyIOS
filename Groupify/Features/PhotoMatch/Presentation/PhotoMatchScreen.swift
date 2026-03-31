@@ -53,6 +53,7 @@ struct PhotoMatchScreen: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         resultsGrid
+                        resultsBannerAd
                         shareMatchesButton
                     }
                 }
@@ -484,6 +485,14 @@ struct PhotoMatchScreen: View {
                 .cornerRadius(Theme.cornerRadius)
         }
         .disabled(!canStart)
+    }
+
+    // MARK: - Banner Ad
+
+    private var resultsBannerAd: some View {
+        BannerAdView(adUnitID: "ca-app-pub-3940256099942544/2435281174")
+            .frame(height: 50)
+            .frame(maxWidth: .infinity)
     }
 
     // MARK: - Results Grid
