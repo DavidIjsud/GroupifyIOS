@@ -47,6 +47,8 @@ struct PhotoMatchScreen: View {
                     }
                     takePhotoButton
                     startDetectionButton
+                    BannerAdView(adUnitID: "ca-app-pub-3940256099942544/2435281174")
+                        .frame(width: 320, height: 50)
                     if !viewModel.state.matches.isEmpty {
                         Text(L10n.similarMatchesFound(count: viewModel.state.allMatches.count))
                             .font(.subheadline.weight(.semibold))
@@ -496,28 +498,47 @@ struct PhotoMatchScreen: View {
 
     // MARK: - Results Grid
 
+    /// Number of photo cells between each native ad row.
+    private static let adInterval = 8
+
     private var resultsGrid: some View {
-        LazyVGrid(
-            columns: [
-                GridItem(.flexible(), spacing: 8),
-                GridItem(.flexible(), spacing: 8)
-            ],
-            spacing: 8
-        ) {
-            ForEach(viewModel.state.matches) { match in
-                MatchThumbnailView(
-                    assetIdentifier: match.assetIdentifier,
-                    scorePercent: match.scorePercent,
-                    isSelected: match.isSelected
-                )
-                .onTapGesture {
-                    viewModel.onToggleMatchSelection(id: match.id)
-                }
-                .onAppear {
-                    // Trigger next page when the last item appears
-                    if match.id == viewModel.state.matches.last?.id {
-                        viewModel.onLoadMoreMatches()
+        let matches = viewModel.state.matches
+        let columns = [
+            GridItem(.flexible(), spacing: 8),
+            GridItem(.flexible(), spacing: 8)
+        ]
+
+        // Split matches into chunks separated by native ads.
+        let chunks = stride(from: 0, to: matches.count, by: Self.adInterval).map { start in
+            Array(matches[start..<min(start + Self.adInterval, matches.count)])
+        }
+
+        return VStack(spacing: 8) {
+            ForEach(Array(chunks.enumerated()), id: \.offset) { chunkIndex, chunk in
+                // Grid section for this chunk
+                LazyVGrid(columns: columns, spacing: 8) {
+                    ForEach(chunk) { match in
+                        MatchThumbnailView(
+                            assetIdentifier: match.assetIdentifier,
+                            scorePercent: match.scorePercent,
+                            isSelected: match.isSelected
+                        )
+                        .onTapGesture {
+                            viewModel.onToggleMatchSelection(id: match.id)
+                        }
+                        .onAppear {
+                            if match.id == matches.last?.id {
+                                viewModel.onLoadMoreMatches()
+                            }
+                        }
                     }
+                }
+
+                // Native ad between chunks (not after the last chunk)
+                if chunkIndex < chunks.count - 1 {
+                    NativeAdCell(adUnitID: "ca-app-pub-3940256099942544/2247696110")
+                        .frame(height: 180)
+                        .frame(maxWidth: .infinity)
                 }
             }
 
