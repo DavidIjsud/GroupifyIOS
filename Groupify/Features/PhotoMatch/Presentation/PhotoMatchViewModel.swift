@@ -116,7 +116,10 @@ final class PhotoMatchViewModel: ObservableObject {
     /// How many times the user has tapped "Start Detection" this session.
     private var detectionCount: Int = 0
 
-    /// Show a rewarded ad every N-th detection, after the first free runs.
+    /// How many times the user has tapped "Share Matches" this session.
+    private var shareCount: Int = 0
+
+    /// Show a rewarded ad every N-th action, after the first free runs.
     private static let adFrequency = 3
     private static let freeRuns = 2
 
@@ -510,6 +513,21 @@ final class PhotoMatchViewModel: ObservableObject {
 
     func onShareMatches() {
         guard !state.matches.isEmpty else { return }
+
+        shareCount += 1
+        let shouldShowAd = shareCount > Self.freeRuns
+            && (shareCount - Self.freeRuns) % Self.adFrequency == 1
+
+        if shouldShowAd {
+            rewardedAdManager.showAd { [weak self] in
+                self?.performShare()
+            }
+        } else {
+            performShare()
+        }
+    }
+
+    private func performShare() {
         Task {
             state.isSearching = true
             defer { state.isSearching = false }
