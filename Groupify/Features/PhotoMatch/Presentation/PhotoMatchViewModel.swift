@@ -109,6 +109,16 @@ final class PhotoMatchViewModel: ObservableObject {
     private let repository: any FaceIndexRepository
     private let photoService: any PhotoLibraryService
     private let metadataStore = IndexMetadataStore()
+    private let rewardedAdManager = RewardedAdManager(
+        adUnitID: "ca-app-pub-3940256099942544/5224354917"
+    )
+
+    /// How many times the user has tapped "Start Detection" this session.
+    private var detectionCount: Int = 0
+
+    /// Show a rewarded ad every N-th detection, after the first free runs.
+    private static let adFrequency = 3
+    private static let freeRuns = 2
 
     /// Monotonically increasing token to cancel stale face-detection tasks.
     private var faceDetectionToken: Int = 0
@@ -335,9 +345,9 @@ final class PhotoMatchViewModel: ObservableObject {
         checkPhotoPermission()
         switch status {
         case .authorized:
-            Task { await runPipeline() }
+            startPipelineWithAdCheck()
         case .limited:
-            Task { await runPipeline() }
+            startPipelineWithAdCheck()
         case .notDetermined:
             // Show pre-permission explanation before triggering the system prompt.
             state.showPrePermissionDialog = true
@@ -345,6 +355,24 @@ final class PhotoMatchViewModel: ObservableObject {
             state.showDeniedAccessDialog = true
         @unknown default:
             state.userMessage = L10n.unableToAccessPhotoLibrary
+        }
+    }
+
+    /// Decides whether to show a rewarded ad before running the pipeline.
+    /// First `freeRuns` detections are ad-free, then every `adFrequency`-th shows an ad.
+    private func startPipelineWithAdCheck() {
+        detectionCount += 1
+
+        let shouldShowAd = detectionCount > Self.freeRuns
+            && (detectionCount - Self.freeRuns) % Self.adFrequency == 1
+
+        if shouldShowAd {
+            rewardedAdManager.showAd { [weak self] in
+                guard let self else { return }
+                Task { await self.runPipeline() }
+            }
+        } else {
+            Task { await runPipeline() }
         }
     }
 
