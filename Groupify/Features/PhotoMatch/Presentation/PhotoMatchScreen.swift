@@ -496,7 +496,7 @@ struct PhotoMatchScreen: View {
     // MARK: - Banner Ad
 
     private var resultsBannerAd: some View {
-        BannerAdView(adUnitID: "ca-app-pub-3940256099942544/2435281174")
+        BannerAdView(adUnitID: "ca-app-pub-2389567920636267/9332551412")
             .frame(width: 320, height: 50)
     }
 
