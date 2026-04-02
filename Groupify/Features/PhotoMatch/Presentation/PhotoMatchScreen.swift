@@ -48,7 +48,7 @@ struct PhotoMatchScreen: View {
                     takePhotoButton
                     startDetectionButton
                     if viewModel.showAds {
-                        BannerAdView(adUnitID: "ca-app-pub-3940256099942544/2435281174")
+                        BannerAdView(adUnitID: "ca-app-pub-2389567920636267/9673733700")
                             .frame(width: 320, height: 50)
                     }
                     if !viewModel.state.matches.isEmpty {
@@ -540,8 +540,8 @@ struct PhotoMatchScreen: View {
 
                 // Native ad between chunks (not after the last chunk)
                 if viewModel.showAds && chunkIndex < chunks.count - 1 {
-                    NativeAdCell(adUnitID: "ca-app-pub-3940256099942544/2247696110")
-                        .frame(height: 180)
+                    NativeAdCell(adUnitID: "ca-app-pub-2389567920636267/8984197516")
+                        .frame(height: 260)
                         .frame(maxWidth: .infinity)
                 }
             }

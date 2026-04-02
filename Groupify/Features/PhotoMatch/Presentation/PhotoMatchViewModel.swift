@@ -111,7 +111,7 @@ final class PhotoMatchViewModel: ObservableObject {
     private let photoService: any PhotoLibraryService
     private let metadataStore = IndexMetadataStore()
     private let rewardedAdManager = RewardedAdManager(
-        adUnitID: "ca-app-pub-3940256099942544/5224354917"
+        adUnitID: "ca-app-pub-2389567920636267/2610360855"
     )
     private var configCancellable: AnyCancellable?
 
