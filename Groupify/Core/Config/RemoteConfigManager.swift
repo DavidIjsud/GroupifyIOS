@@ -1,6 +1,7 @@
 import Combine
 import FirebaseRemoteConfig
 import Foundation
+import UIKit
 
 /// Centralized manager for Firebase Remote Config.
 /// Fetches and caches remote values with sensible defaults.
@@ -42,6 +43,15 @@ final class RemoteConfigManager: ObservableObject {
         #endif
         remoteConfig.configSettings = settings
         remoteConfig.setDefaults(Self.defaults)
+
+        // Re-fetch every time the app returns from background.
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.willEnterForegroundNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.fetchAndActivate()
+        }
     }
 
     // MARK: - Fetch
