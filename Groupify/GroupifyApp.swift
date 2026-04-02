@@ -16,6 +16,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     ) -> Bool {
         FirebaseApp.configure()
         MobileAds.shared.start(completionHandler: nil)
+        RemoteConfigManager.shared.fetchAndActivate()
         return true
     }
 }

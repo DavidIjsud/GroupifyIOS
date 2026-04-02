@@ -47,15 +47,19 @@ struct PhotoMatchScreen: View {
                     }
                     takePhotoButton
                     startDetectionButton
-                    BannerAdView(adUnitID: "ca-app-pub-3940256099942544/2435281174")
-                        .frame(width: 320, height: 50)
+                    if viewModel.showAds {
+                        BannerAdView(adUnitID: "ca-app-pub-3940256099942544/2435281174")
+                            .frame(width: 320, height: 50)
+                    }
                     if !viewModel.state.matches.isEmpty {
                         Text(L10n.similarMatchesFound(count: viewModel.state.allMatches.count))
                             .font(.subheadline.weight(.semibold))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         resultsGrid
-                        resultsBannerAd
+                        if viewModel.showAds {
+                            resultsBannerAd
+                        }
                         shareMatchesButton
                     }
                 }
@@ -535,7 +539,7 @@ struct PhotoMatchScreen: View {
                 }
 
                 // Native ad between chunks (not after the last chunk)
-                if chunkIndex < chunks.count - 1 {
+                if viewModel.showAds && chunkIndex < chunks.count - 1 {
                     NativeAdCell(adUnitID: "ca-app-pub-3940256099942544/2247696110")
                         .frame(height: 180)
                         .frame(maxWidth: .infinity)

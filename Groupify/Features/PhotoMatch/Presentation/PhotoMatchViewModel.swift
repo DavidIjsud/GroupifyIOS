@@ -1,7 +1,7 @@
 import AVFoundation
 import Combine
 import Photos
-import UIKit
+import SwiftUI
 
 // MARK: - Permission Warning Level
 
@@ -102,6 +102,7 @@ struct PhotoMatchUiState {
 
 final class PhotoMatchViewModel: ObservableObject {
     @Published var state = PhotoMatchUiState()
+    @Published private(set) var showAds: Bool = true
 
     private let indexUseCase: IndexLibraryUseCase
     private let searchUseCase: SearchByPhotoUseCase
@@ -112,6 +113,7 @@ final class PhotoMatchViewModel: ObservableObject {
     private let rewardedAdManager = RewardedAdManager(
         adUnitID: "ca-app-pub-3940256099942544/5224354917"
     )
+    private var configCancellable: AnyCancellable?
 
     /// How many times the user has tapped "Start Detection" this session.
     private var detectionCount: Int = 0
@@ -151,6 +153,11 @@ final class PhotoMatchViewModel: ObservableObject {
         if let warning = embedderResult.warningMessage {
             state.userMessage = warning
         }
+
+        // Observe Remote Config for ad visibility.
+        configCancellable = RemoteConfigManager.shared.$showAds
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.showAds, on: self)
 
         // Check initial photo permission state for the warning card.
         checkPhotoPermission()
@@ -366,7 +373,8 @@ final class PhotoMatchViewModel: ObservableObject {
     private func startPipelineWithAdCheck() {
         detectionCount += 1
 
-        let shouldShowAd = detectionCount > Self.freeRuns
+        let shouldShowAd = showAds
+            && detectionCount > Self.freeRuns
             && (detectionCount - Self.freeRuns) % Self.adFrequency == 1
 
         if shouldShowAd {
@@ -515,7 +523,8 @@ final class PhotoMatchViewModel: ObservableObject {
         guard !state.matches.isEmpty else { return }
 
         shareCount += 1
-        let shouldShowAd = shareCount > Self.freeRuns
+        let shouldShowAd = showAds
+            && shareCount > Self.freeRuns
             && (shareCount - Self.freeRuns) % Self.adFrequency == 1
 
         if shouldShowAd {
