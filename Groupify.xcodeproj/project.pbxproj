@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		E45782352F5938BF00BC524B /* TensorFlowLiteSwift in Frameworks */ = {isa = PBXBuildFile; productRef = E45782342F5938BF00BC524B /* TensorFlowLiteSwift */; };
+		E47DE50D2F7E0AF400007E11 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = E47DE50C2F7E0AF400007E11 /* GoogleMobileAds */; };
 		E4D2019D2F74E603002FFE3D /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = E4D2019C2F74E603002FFE3D /* FirebaseAnalytics */; };
 		E4EACE0D2F7B507D00D3B87C /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = E4EACE0C2F7B507D00D3B87C /* FirebaseCrashlytics */; };
 /* End PBXBuildFile section */
@@ -87,6 +88,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E47DE50D2F7E0AF400007E11 /* GoogleMobileAds in Frameworks */,
 				E4EACE0D2F7B507D00D3B87C /* FirebaseCrashlytics in Frameworks */,
 				E4D2019D2F74E603002FFE3D /* FirebaseAnalytics in Frameworks */,
 				E45782352F5938BF00BC524B /* TensorFlowLiteSwift in Frameworks */,
@@ -162,6 +164,7 @@
 				E45782342F5938BF00BC524B /* TensorFlowLiteSwift */,
 				E4D2019C2F74E603002FFE3D /* FirebaseAnalytics */,
 				E4EACE0C2F7B507D00D3B87C /* FirebaseCrashlytics */,
+				E47DE50C2F7E0AF400007E11 /* GoogleMobileAds */,
 			);
 			productName = Groupify;
 			productReference = E488F2842F57799A00E7FE85 /* Groupify.app */;
@@ -249,6 +252,7 @@
 			packageReferences = (
 				E45782332F5938BF00BC524B /* XCRemoteSwiftPackageReference "TensorFlowLiteSwift" */,
 				E4D2019B2F74E603002FFE3D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				E47DE50B2F7E09C100007E11 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E488F2852F57799A00E7FE85 /* Products */;
@@ -684,6 +688,14 @@
 				minimumVersion = 2.14.0;
 			};
 		};
+		E47DE50B2F7E09C100007E11 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 13.1.0;
+			};
+		};
 		E4D2019B2F74E603002FFE3D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -699,6 +711,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E45782332F5938BF00BC524B /* XCRemoteSwiftPackageReference "TensorFlowLiteSwift" */;
 			productName = TensorFlowLiteSwift;
+		};
+		E47DE50C2F7E0AF400007E11 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E47DE50B2F7E09C100007E11 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
 		};
 		E4D2019C2F74E603002FFE3D /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
