@@ -77,3 +77,56 @@
 
 // MARK: - Results (plural handled via stringsdict)
 "results.matchesFound" = "%d coincidencias similares encontradas";
+
+// MARK: - Flujo de Grupos — Encabezado de resultados
+"results.similarPhotos" = "Fotos similares";
+"selection.select" = "Seleccionar";
+"selection.done" = "Listo";
+
+// MARK: - Flujo de Grupos — Hoja Guardar en grupo
+"group.saveToGroup" = "Guardar en grupo";
+"group.saved" = "Guardado en “%@”";
+"group.nameFieldLabel" = "Nombre del grupo";
+"group.namePlaceholder" = "p. ej. Fin de semana";
+"group.helperEmpty" = "Nombra tu grupo para encontrarlo después.";
+"group.nameAvailable" = "El nombre está disponible";
+"group.duplicateError" = "Ya existe un grupo llamado “%@”. Elige otro nombre.";
+"group.createNewInstead" = "Toca para crear uno nuevo";
+"group.suggestionsHeader" = "Sugerencias";
+"group.orAddToExisting" = "O añadir a uno existente";
+"group.addingTo" = "Añadiendo a";
+"group.afterAdd" = "%1$d → %2$d fotos";
+"group.createCTA" = "Crear grupo y guardar";
+"group.addToCTA" = "Añadir a %@";
+"group.suggestion.weekend" = "Fin de semana";
+"group.suggestion.family" = "Familia";
+"group.suggestion.selfies" = "Selfies";
+"group.suggestion.trip" = "Viaje";
+
+// MARK: - Flujo de Grupos — Pantalla de grupos
+"groups.title" = "Grupos";
+"groups.searchPlaceholder" = "Buscar grupos";
+"groups.emptyTitle" = "Aún no hay grupos";
+"groups.emptyMessage" = "Después de encontrar coincidencias, toca “%@” para guardarlas juntas aquí.";
+"groups.startMatch" = "Iniciar búsqueda";
+
+// MARK: - Flujo de Grupos — Detalle del grupo
+"groupDetail.label" = "Grupo";
+"groupDetail.share" = "Compartir";
+"groupDetail.addMore" = "Añadir más";
+"groupDetail.delete" = "Eliminar grupo";
+"groupDetail.deleteConfirm" = "“%@” se eliminará. Tus fotos permanecen en tu fototeca.";
+
+// MARK: - Flujo de Grupos — Pestañas / común / fechas
+"tab.home" = "Inicio";
+"tab.groups" = "Grupos";
+"common.cancel" = "Cancelar";
+"date.today" = "Hoy";
+"date.yesterday" = "Ayer";
+
+// MARK: - Flujo de Grupos — Respaldos de plural (stringsdict tiene prioridad)
+"results.matchesFoundShort" = "%d coincidencias encontradas";
+"group.photosCount" = "%d fotos";
+"group.facesCount" = "%d rostros";
+"group.groupsCount" = "%d grupos";
+"group.newPhotosCount" = "%d fotos nuevas";

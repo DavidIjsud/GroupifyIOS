@@ -40,5 +40,95 @@
         </dict>
     </dict>
 
+    <!-- "239 coincidencias encontradas" -->
+    <key>results.matchesFoundShort</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@m@</string>
+        <key>m</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d coincidencia encontrada</string>
+            <key>other</key>
+            <string>%d coincidencias encontradas</string>
+        </dict>
+    </dict>
+
+    <!-- "239 fotos" -->
+    <key>group.photosCount</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@m@</string>
+        <key>m</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d foto</string>
+            <key>other</key>
+            <string>%d fotos</string>
+        </dict>
+    </dict>
+
+    <!-- "1 rostro" -->
+    <key>group.facesCount</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@m@</string>
+        <key>m</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d rostro</string>
+            <key>other</key>
+            <string>%d rostros</string>
+        </dict>
+    </dict>
+
+    <!-- "4 grupos" -->
+    <key>group.groupsCount</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@m@</string>
+        <key>m</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d grupo</string>
+            <key>other</key>
+            <string>%d grupos</string>
+        </dict>
+    </dict>
+
+    <!-- "239 fotos nuevas" -->
+    <key>group.newPhotosCount</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@m@</string>
+        <key>m</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d foto nueva</string>
+            <key>other</key>
+            <string>%d fotos nuevas</string>
+        </dict>
+    </dict>
+
 </dict>
 </plist>

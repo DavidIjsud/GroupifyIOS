@@ -58,6 +58,10 @@ struct PhotoMatchUiState {
     var visibleMatchCount: Int = 0
     var hasMoreMatches: Bool = false
 
+    /// When on, tapping a result toggles its selection (iOS-style "Select" mode).
+    /// When off, the grid is read-only and Save/Share act on all matches.
+    var isSelectionMode: Bool = false
+
     // Sharing
     var showShareSheet: Bool = false
     var shareURLs: [URL] = []
@@ -490,6 +494,7 @@ final class PhotoMatchViewModel: ObservableObject {
     // MARK: - Match Selection
 
     func onToggleMatchSelection(id: UUID) {
+        guard state.isSelectionMode else { return }
         guard let idx = state.matches.firstIndex(where: { $0.id == id }) else { return }
         state.matches[idx].isSelected.toggle()
     }
@@ -498,6 +503,34 @@ final class PhotoMatchViewModel: ObservableObject {
         for i in state.matches.indices {
             state.matches[i].isSelected = false
         }
+    }
+
+    /// Toggles iOS-style "Select" mode for the results grid. Leaving the mode
+    /// clears any current selection.
+    func onToggleSelectionMode() {
+        state.isSelectionMode.toggle()
+        if !state.isSelectionMode {
+            onClearMatchSelection()
+        }
+    }
+
+    // MARK: - Save to Group
+
+    /// The matches that a Save/Share action applies to: the current selection if
+    /// any, otherwise every match. Returns the asset ids plus the counts the
+    /// Save-to-Group sheet displays ("N photos · N faces").
+    var saveToGroupPayload: (assetIdentifiers: [String], photoCount: Int, faceCount: Int) {
+        let target = state.hasSelectedMatches ? state.selectedMatches : state.allMatches
+        return (target.map(\.assetIdentifier), target.count, state.selectedFaces.count)
+    }
+
+    /// Called after the sheet successfully saves into a group: surface a
+    /// confirmation and leave selection mode.
+    func onGroupSaved(groupName: String) {
+        state.userMessage = L10n.savedToGroup(groupName)
+        state.showSettingsAction = false
+        state.isSelectionMode = false
+        onClearMatchSelection()
     }
 
     // MARK: - Pagination

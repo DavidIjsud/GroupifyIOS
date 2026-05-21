@@ -239,4 +239,159 @@ enum L10n {
         )
         return String(format: format, count)
     }
+
+    // MARK: - Results Header (Groups flow)
+
+    nonisolated static var similarPhotosTitle: String {
+        NSLocalizedString("results.similarPhotos", comment: "Results header large title")
+    }
+    /// Plural via stringsdict: "239 Matches Found"
+    nonisolated static func matchesFoundCount(_ count: Int) -> String {
+        String(format: NSLocalizedString(
+            "results.matchesFoundShort", comment: "Plural: X Matches Found"
+        ), count)
+    }
+    nonisolated static var selectionSelect: String {
+        NSLocalizedString("selection.select", comment: "Select pill label")
+    }
+    nonisolated static var selectionDone: String {
+        NSLocalizedString("selection.done", comment: "Select pill label when active")
+    }
+
+    // MARK: - Save to Group / Sheet
+
+    nonisolated static var saveToGroup: String {
+        NSLocalizedString("group.saveToGroup", comment: "Save to Group button / sheet title")
+    }
+    nonisolated static func savedToGroup(_ name: String) -> String {
+        String(format: NSLocalizedString(
+            "group.saved", comment: "Saved-to-group confirmation"
+        ), name)
+    }
+    /// Plural via stringsdict: "239 photos"
+    nonisolated static func groupPhotosCount(_ count: Int) -> String {
+        String(format: NSLocalizedString("group.photosCount", comment: "Plural: N photos"), count)
+    }
+    /// Plural via stringsdict: "1 face"
+    nonisolated static func groupFacesCount(_ count: Int) -> String {
+        String(format: NSLocalizedString("group.facesCount", comment: "Plural: N faces"), count)
+    }
+    /// Plural via stringsdict: "4 groups"
+    nonisolated static func groupGroupsCount(_ count: Int) -> String {
+        String(format: NSLocalizedString("group.groupsCount", comment: "Plural: N groups"), count)
+    }
+    /// Plural via stringsdict: "239 new photos"
+    nonisolated static func groupNewPhotosCount(_ count: Int) -> String {
+        String(format: NSLocalizedString("group.newPhotosCount", comment: "Plural: N new photos"), count)
+    }
+    nonisolated static var groupNameFieldLabel: String {
+        NSLocalizedString("group.nameFieldLabel", comment: "Group name field label")
+    }
+    nonisolated static var groupNamePlaceholder: String {
+        NSLocalizedString("group.namePlaceholder", comment: "Group name placeholder")
+    }
+    nonisolated static var groupHelperEmpty: String {
+        NSLocalizedString("group.helperEmpty", comment: "Helper text when name empty")
+    }
+    nonisolated static var groupNameAvailable: String {
+        NSLocalizedString("group.nameAvailable", comment: "Name available helper")
+    }
+    nonisolated static func groupDuplicateError(_ name: String) -> String {
+        String(format: NSLocalizedString(
+            "group.duplicateError", comment: "Duplicate name error"
+        ), name)
+    }
+    nonisolated static var groupCreateNewInstead: String {
+        NSLocalizedString("group.createNewInstead", comment: "Link to leave adding mode")
+    }
+    nonisolated static var groupSuggestionsHeader: String {
+        NSLocalizedString("group.suggestionsHeader", comment: "Suggestions section header")
+    }
+    nonisolated static var groupOrAddToExisting: String {
+        NSLocalizedString("group.orAddToExisting", comment: "Add-to-existing section header")
+    }
+    nonisolated static var groupAddingTo: String {
+        NSLocalizedString("group.addingTo", comment: "Adding-to section header")
+    }
+    nonisolated static func groupAfterAdd(_ before: Int, _ after: Int) -> String {
+        String(format: NSLocalizedString(
+            "group.afterAdd", comment: "N -> M photos math line"
+        ), before, after)
+    }
+    nonisolated static var groupCreateCTA: String {
+        NSLocalizedString("group.createCTA", comment: "Create group CTA")
+    }
+    nonisolated static func groupAddToCTA(_ name: String) -> String {
+        String(format: NSLocalizedString("group.addToCTA", comment: "Add to <group> CTA"), name)
+    }
+    nonisolated static var groupSuggestionWeekend: String {
+        NSLocalizedString("group.suggestion.weekend", comment: "Suggestion chip")
+    }
+    nonisolated static var groupSuggestionFamily: String {
+        NSLocalizedString("group.suggestion.family", comment: "Suggestion chip")
+    }
+    nonisolated static var groupSuggestionSelfies: String {
+        NSLocalizedString("group.suggestion.selfies", comment: "Suggestion chip")
+    }
+    nonisolated static var groupSuggestionTrip: String {
+        NSLocalizedString("group.suggestion.trip", comment: "Suggestion chip")
+    }
+
+    // MARK: - Groups Screen
+
+    nonisolated static var groupsTitle: String {
+        NSLocalizedString("groups.title", comment: "Groups screen title")
+    }
+    nonisolated static var groupsSearchPlaceholder: String {
+        NSLocalizedString("groups.searchPlaceholder", comment: "Groups search placeholder")
+    }
+    nonisolated static var groupsEmptyTitle: String {
+        NSLocalizedString("groups.emptyTitle", comment: "Empty groups title")
+    }
+    nonisolated static func groupsEmptyMessage(_ saveButton: String) -> String {
+        String(format: NSLocalizedString(
+            "groups.emptyMessage", comment: "Empty groups message; %@ is the Save button name"
+        ), saveButton)
+    }
+    nonisolated static var groupsStartMatch: String {
+        NSLocalizedString("groups.startMatch", comment: "Start a match button")
+    }
+
+    // MARK: - Group Detail
+
+    nonisolated static var groupDetailLabel: String {
+        NSLocalizedString("groupDetail.label", comment: "GROUP eyebrow label")
+    }
+    nonisolated static var groupDetailShare: String {
+        NSLocalizedString("groupDetail.share", comment: "Share action")
+    }
+    nonisolated static var groupDetailAddMore: String {
+        NSLocalizedString("groupDetail.addMore", comment: "Add more action")
+    }
+    nonisolated static var groupDelete: String {
+        NSLocalizedString("groupDetail.delete", comment: "Delete group action")
+    }
+    nonisolated static func groupDeleteConfirmMessage(_ name: String) -> String {
+        String(format: NSLocalizedString(
+            "groupDetail.deleteConfirm", comment: "Delete confirmation message"
+        ), name)
+    }
+
+    // MARK: - Tabs / Common / Dates
+
+    nonisolated static var tabHome: String {
+        NSLocalizedString("tab.home", comment: "Home tab")
+    }
+    nonisolated static var tabGroups: String {
+        NSLocalizedString("tab.groups", comment: "Groups tab")
+    }
+    nonisolated static var commonCancel: String {
+        NSLocalizedString("common.cancel", comment: "Cancel")
+    }
+    nonisolated static var dateToday: String {
+        NSLocalizedString("date.today", comment: "Today")
+    }
+    nonisolated static var dateYesterday: String {
+        NSLocalizedString("date.yesterday", comment: "Yesterday")
+    }
 }

@@ -24,6 +24,14 @@ struct PhotoMatchScreen: View {
     @StateObject private var viewModel = PhotoMatchViewModel()
     @State private var isShareButtonVisible = false
 
+    /// Invoked when the user taps "Save to Group"; the host (RootTabView)
+    /// presents the Create-Group sheet above the floating tab bar.
+    private let onRequestSaveToGroup: (SaveToGroupContext) -> Void
+
+    init(onRequestSaveToGroup: @escaping (SaveToGroupContext) -> Void = { _ in }) {
+        self.onRequestSaveToGroup = onRequestSaveToGroup
+    }
+
     var body: some View {
         ZStack {
             Theme.background.ignoresSafeArea()
@@ -52,20 +60,17 @@ struct PhotoMatchScreen: View {
                             .frame(width: 320, height: 50)
                     }
                     if !viewModel.state.matches.isEmpty {
-                        Text(L10n.similarMatchesFound(count: viewModel.state.allMatches.count))
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        resultsHeader
                         resultsGrid
                         if viewModel.showAds {
                             resultsBannerAd
                         }
-                        shareMatchesButton
+                        bottomActionStack
                     }
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
-                .padding(.bottom, 32)
+                .padding(.bottom, 120) // clear the floating tab bar + action stack
             }
             .onPreferenceChange(ShareButtonVisibleKey.self) { visible in
                 isShareButtonVisible = visible
@@ -121,7 +126,7 @@ struct PhotoMatchScreen: View {
                             }
                         }
                         .padding(.trailing, 20)
-                        .padding(.bottom, 24)
+                        .padding(.bottom, 96) // clear the floating tab bar
                         .animation(.easeInOut(duration: 0.2), value: viewModel.state.hasSelectedMatches)
                     }
                 }
@@ -135,7 +140,7 @@ struct PhotoMatchScreen: View {
                     Spacer()
                     messageBanner(message)
                         .padding(.horizontal, 20)
-                        .padding(.bottom, 16)
+                        .padding(.bottom, 96) // clear the floating tab bar
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
                 .animation(.easeInOut(duration: 0.25), value: viewModel.state.userMessage)
@@ -500,6 +505,43 @@ struct PhotoMatchScreen: View {
             .frame(width: 320, height: 50)
     }
 
+    // MARK: - Results Header (matches count + title + Select pill)
+
+    private var resultsHeader: some View {
+        HStack(alignment: .center, spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(L10n.matchesFoundCount(viewModel.state.allMatches.count))
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(Theme.secondaryText)
+                    .textCase(.uppercase)
+                Text(L10n.similarPhotosTitle)
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundColor(.white)
+            }
+            Spacer(minLength: 0)
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    viewModel.onToggleSelectionMode()
+                }
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: viewModel.state.isSelectionMode
+                          ? "checkmark.circle.fill" : "checkmark.circle")
+                        .font(.system(size: 15, weight: .semibold))
+                    Text(viewModel.state.isSelectionMode ? L10n.selectionDone : L10n.selectionSelect)
+                        .font(.system(size: 14, weight: .semibold))
+                }
+                .foregroundColor(viewModel.state.isSelectionMode ? .white : .white)
+                .padding(.horizontal, 14)
+                .frame(height: 36)
+                .background(Capsule().fill(viewModel.state.isSelectionMode
+                                           ? Theme.accent : Theme.cardBackground))
+            }
+            .buttonStyle(.plain)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
     // MARK: - Results Grid
 
     /// Number of photo cells between each native ad row.
@@ -556,7 +598,7 @@ struct PhotoMatchScreen: View {
         }
     }
 
-    private var shareMatchesButton: some View {
+    private var bottomActionStack: some View {
         VStack(spacing: 10) {
             if viewModel.state.hasSelectedMatches {
                 Button {
@@ -568,6 +610,26 @@ struct PhotoMatchScreen: View {
                 }
             }
 
+            // Save to Group — secondary outline, sits above Share.
+            Button {
+                requestSaveToGroup()
+            } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: "folder.badge.plus")
+                    Text(L10n.saveToGroup).fontWeight(.semibold)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .foregroundColor(.white)
+                .background(Theme.accent.opacity(0.12))
+                .cornerRadius(Theme.cornerRadius)
+                .overlay(
+                    RoundedRectangle(cornerRadius: Theme.cornerRadius)
+                        .stroke(Theme.accent.opacity(0.45), lineWidth: 1.5)
+                )
+            }
+
+            // Share — primary filled.
             Button {
                 viewModel.onShareMatches()
             } label: {
@@ -594,6 +656,19 @@ struct PhotoMatchScreen: View {
                 )
             }
         )
+    }
+
+    /// Builds the Save-to-Group context from the current matches (selected or all)
+    /// and asks the host to present the sheet.
+    private func requestSaveToGroup() {
+        let payload = viewModel.saveToGroupPayload
+        guard !payload.assetIdentifiers.isEmpty else { return }
+        onRequestSaveToGroup(SaveToGroupContext(
+            assetIdentifiers: payload.assetIdentifiers,
+            photoCount: payload.photoCount,
+            faceCount: payload.faceCount,
+            onSaved: { name in viewModel.onGroupSaved(groupName: name) }
+        ))
     }
 
     // MARK: - Overlays

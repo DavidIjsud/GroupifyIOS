@@ -77,3 +77,56 @@
 
 // MARK: - Results (plural handled via stringsdict)
 "results.matchesFound" = "%d Similar Matches Found";
+
+// MARK: - Groups Flow — Results header
+"results.similarPhotos" = "Similar photos";
+"selection.select" = "Select";
+"selection.done" = "Done";
+
+// MARK: - Groups Flow — Save to Group sheet
+"group.saveToGroup" = "Save to Group";
+"group.saved" = "Saved to “%@”";
+"group.nameFieldLabel" = "Group name";
+"group.namePlaceholder" = "e.g. Birthday Weekend";
+"group.helperEmpty" = "Name your group so you can find it later.";
+"group.nameAvailable" = "Name is available";
+"group.duplicateError" = "A group named “%@” already exists. Choose a different name.";
+"group.createNewInstead" = "Tap to create new instead";
+"group.suggestionsHeader" = "Suggestions";
+"group.orAddToExisting" = "Or add to existing";
+"group.addingTo" = "Adding to";
+"group.afterAdd" = "%1$d → %2$d photos";
+"group.createCTA" = "Create Group & Save";
+"group.addToCTA" = "Add to %@";
+"group.suggestion.weekend" = "Weekend";
+"group.suggestion.family" = "Family";
+"group.suggestion.selfies" = "Selfies";
+"group.suggestion.trip" = "Trip";
+
+// MARK: - Groups Flow — Groups screen
+"groups.title" = "Groups";
+"groups.searchPlaceholder" = "Search groups";
+"groups.emptyTitle" = "No groups yet";
+"groups.emptyMessage" = "After matching photos, tap “%@” to keep them together here.";
+"groups.startMatch" = "Start a match";
+
+// MARK: - Groups Flow — Group detail
+"groupDetail.label" = "Group";
+"groupDetail.share" = "Share";
+"groupDetail.addMore" = "Add more";
+"groupDetail.delete" = "Delete Group";
+"groupDetail.deleteConfirm" = "“%@” will be removed. Your photos stay in your library.";
+
+// MARK: - Groups Flow — Tabs / common / dates
+"tab.home" = "Home";
+"tab.groups" = "Groups";
+"common.cancel" = "Cancel";
+"date.today" = "Today";
+"date.yesterday" = "Yesterday";
+
+// MARK: - Groups Flow — Plural fallbacks (stringsdict takes precedence)
+"results.matchesFoundShort" = "%d Matches Found";
+"group.photosCount" = "%d photos";
+"group.facesCount" = "%d faces";
+"group.groupsCount" = "%d groups";
+"group.newPhotosCount" = "%d new photos";

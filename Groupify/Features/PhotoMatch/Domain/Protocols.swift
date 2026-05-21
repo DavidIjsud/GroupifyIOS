@@ -24,6 +24,16 @@ protocol FaceIndexRepository: Sendable {
     nonisolated func clear() async throws
 }
 
+// MARK: - Photo Groups Persistence
+
+/// Persists user-created groups of matched photos (local reference store).
+/// Implementations rewrite the whole collection on save — groups are small
+/// (a name plus a list of asset identifiers), mirroring the face-index manifest.
+protocol PhotoGroupRepository: Sendable {
+    nonisolated func loadGroups() async throws -> [PhotoGroup]
+    nonisolated func saveAll(_ groups: [PhotoGroup]) async throws
+}
+
 // MARK: - Photo Library Access
 
 protocol PhotoLibraryService: Sendable {
