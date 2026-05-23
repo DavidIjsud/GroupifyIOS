@@ -49,6 +49,16 @@ struct IndexedFaceRecord: Codable, Sendable {
     }
 }
 
+// MARK: - Text Index
+
+/// Codable record for the OCR text manifest (`text_index.json`).
+/// One per asset that contained recognizable text.
+struct IndexedTextRecord: Codable, Sendable {
+    let assetIdentifier: String
+    let text: String
+    let dateIndexed: Date
+}
+
 // MARK: - Query Faces
 
 struct QueryFace: Sendable {

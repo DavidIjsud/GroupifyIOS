@@ -15,6 +15,16 @@
 "faces.clear" = "Limpiar";
 "faces.label" = "Rostro %d";
 
+// MARK: - Modo de búsqueda (Rostros / Texto)
+"mode.faces" = "Rostros";
+"mode.text" = "Texto";
+"text.searchTitle" = "Buscar por texto";
+"text.searchPlaceholder" = "Busca imágenes que contengan…";
+"text.searchButton" = "Buscar fotos";
+"text.enterSearchText" = "Escribe un texto para buscar.";
+"text.noTextFound" = "No se encontraron fotos con ese texto.";
+"text.readingProgress" = "Leyendo texto %d de %d…";
+
 // MARK: - Buttons
 "button.takePhoto" = "Tomar una foto";
 "button.startDetection" = "Iniciar búsqueda";

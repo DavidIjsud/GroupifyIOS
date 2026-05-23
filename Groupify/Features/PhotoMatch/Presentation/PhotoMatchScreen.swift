@@ -40,6 +40,8 @@ struct PhotoMatchScreen: View {
                 VStack(spacing: 24) {
                     headerSection
 
+                    searchModePicker
+
                     // Permission warning card
                     if viewModel.state.shouldShowWarningCard {
                         permissionWarningCard
@@ -47,14 +49,20 @@ struct PhotoMatchScreen: View {
                             .animation(.easeInOut(duration: 0.25), value: viewModel.state.shouldShowWarningCard)
                     }
 
-                    queryPhotoCard
-                    if !viewModel.state.queryFaces.isEmpty {
-                        faceChipsSection
-                    } else if viewModel.state.isFaceLoading {
-                        faceLoadingIndicator
+                    if viewModel.state.searchMode == .faces {
+                        queryPhotoCard
+                        if !viewModel.state.queryFaces.isEmpty {
+                            faceChipsSection
+                        } else if viewModel.state.isFaceLoading {
+                            faceLoadingIndicator
+                        }
+                        takePhotoButton
+                        startDetectionButton
+                    } else {
+                        textSearchCard
+                        textSearchButton
                     }
-                    takePhotoButton
-                    startDetectionButton
+
                     if !viewModel.state.matches.isEmpty {
                         resultsHeader
                         resultsGrid
@@ -170,6 +178,18 @@ struct PhotoMatchScreen: View {
                onDismiss: { viewModel.onDismissShareSheet() }) {
             ShareSheetView(items: viewModel.state.shareURLs)
         }
+        // Full-screen image preview (tap a result when Select mode is off)
+        .fullScreenCover(isPresented: Binding(
+            get: { viewModel.state.previewAssetIdentifier != nil },
+            set: { if !$0 { viewModel.onDismissPreview() } }
+        )) {
+            if let id = viewModel.state.previewAssetIdentifier {
+                ImagePreviewView(
+                    assetIdentifier: id,
+                    onClose: { viewModel.onDismissPreview() }
+                )
+            }
+        }
         // iOS 16+ picker overlay
         .overlay {
             if isIOS16Available {
@@ -235,6 +255,102 @@ struct PhotoMatchScreen: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 8)
+    }
+
+    // MARK: - Search Mode Picker (Faces / Text)
+
+    private var searchModePicker: some View {
+        HStack(spacing: 6) {
+            modeButton(.faces, icon: "face.smiling", label: L10n.modeFaces)
+            modeButton(.text, icon: "text.magnifyingglass", label: L10n.modeText)
+        }
+        .padding(4)
+        .background(Theme.cardBackground)
+        .clipShape(Capsule())
+    }
+
+    private func modeButton(_ mode: SearchMode, icon: String, label: String) -> some View {
+        let active = viewModel.state.searchMode == mode
+        return Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                viewModel.onChangeSearchMode(mode)
+            }
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.system(size: 14, weight: .semibold))
+                Text(label)
+                    .font(.system(size: 14, weight: .semibold))
+            }
+            .foregroundColor(active ? .white : Theme.secondaryText)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .background(Capsule().fill(active ? Theme.accent : Color.clear))
+            .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Text Search Card
+
+    private var textSearchCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(L10n.textSearchTitle)
+                .font(.subheadline.weight(.semibold))
+                .foregroundColor(.white)
+
+            HStack(spacing: 10) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(Theme.secondaryText)
+
+                TextField(L10n.textSearchPlaceholder, text: $viewModel.state.searchText)
+                    .foregroundColor(.white)
+                    .tint(Theme.accent)
+                    .submitLabel(.search)
+                    .autocorrectionDisabled(true)
+                    .textInputAutocapitalization(.never)
+                    .onSubmit { viewModel.onTapTextSearch() }
+
+                if viewModel.state.hasSearchText {
+                    Button {
+                        viewModel.state.searchText = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(Theme.secondaryText)
+                    }
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .background(Theme.background)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.white.opacity(0.08), lineWidth: 1)
+            )
+        }
+        .padding(14)
+        .background(Theme.cardBackground)
+        .cornerRadius(Theme.cornerRadius)
+    }
+
+    private var textSearchButton: some View {
+        let canSearch = viewModel.state.hasSearchText && !viewModel.state.isBusy
+        return Button {
+            viewModel.onTapTextSearch()
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                Text(L10n.textSearchButton)
+                    .fontWeight(.bold)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .foregroundColor(.white)
+            .background(canSearch ? Theme.accent : Theme.accent.opacity(0.35))
+            .cornerRadius(Theme.cornerRadius)
+        }
+        .disabled(!canSearch)
     }
 
     // MARK: - Permission Warning Card
@@ -546,7 +662,7 @@ struct PhotoMatchScreen: View {
                         isSelected: match.isSelected
                     )
                     .onTapGesture {
-                        viewModel.onToggleMatchSelection(id: match.id)
+                        viewModel.onTapMatch(id: match.id)
                     }
                     .onAppear {
                         if match.id == matches.last?.id {

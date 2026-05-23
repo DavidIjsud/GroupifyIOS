@@ -11,6 +11,14 @@ enum PhotoPermissionWarning {
     case denied
 }
 
+// MARK: - Search Mode
+
+/// Whether the Home screen searches by an uploaded face photo or by typed text.
+enum SearchMode {
+    case faces
+    case text
+}
+
 // MARK: - UI Models
 
 struct MatchUiModel: Identifiable {
@@ -31,6 +39,10 @@ struct QueryFaceUiModel: Identifiable {
 // MARK: - UI State
 
 struct PhotoMatchUiState {
+    // Search mode (face photo vs. typed text)
+    var searchMode: SearchMode = .faces
+    var searchText: String = ""
+
     // Photo picking
     var selectedImage: UIImage?
     var isPicking: Bool = false
@@ -62,6 +74,10 @@ struct PhotoMatchUiState {
     /// When off, the grid is read-only and Save/Share act on all matches.
     var isSelectionMode: Bool = false
 
+    /// Asset shown in the full-screen preview (when select mode is off and the
+    /// user taps a result). `nil` means no preview is presented.
+    var previewAssetIdentifier: String?
+
     // Sharing
     var showShareSheet: Bool = false
     var shareURLs: [URL] = []
@@ -77,6 +93,9 @@ struct PhotoMatchUiState {
 
     // Derived
     var hasPhoto: Bool { selectedImage != nil }
+    var hasSearchText: Bool {
+        !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
     var isCameraAvailable: Bool { UIImagePickerController.isSourceTypeAvailable(.camera) }
     var isBusy: Bool { isIndexing || isSearching || isFaceLoading }
 
@@ -111,7 +130,10 @@ final class PhotoMatchViewModel: ObservableObject {
     private let indexUseCase: IndexLibraryUseCase
     private let searchUseCase: SearchByPhotoUseCase
     private let detectQueryFacesUseCase: DetectQueryFacesUseCase
+    private let indexTextUseCase: IndexLibraryTextUseCase
+    private let searchTextUseCase: SearchByTextUseCase
     private let repository: any FaceIndexRepository
+    private let textRepository: any TextIndexRepository
     private let photoService: any PhotoLibraryService
     private let metadataStore = IndexMetadataStore()
     private let rewardedAdManager = RewardedAdManager(
@@ -138,8 +160,11 @@ final class PhotoMatchViewModel: ObservableObject {
         let embedder = embedderResult.embedder
         let repo = FileFaceIndexRepository()
         let photoSvc = PhotoKitLibraryService()
+        let textRecognizer = VisionTextRecognizer()
+        let textRepo = FileTextIndexRepository()
 
         self.repository = repo
+        self.textRepository = textRepo
         self.photoService = photoSvc
         self.detectQueryFacesUseCase = DetectQueryFacesUseCase(detector: detector)
         self.indexUseCase = IndexLibraryUseCase(
@@ -152,6 +177,12 @@ final class PhotoMatchViewModel: ObservableObject {
             embedder: embedder,
             repository: repo
         )
+        self.indexTextUseCase = IndexLibraryTextUseCase(
+            photoService: photoSvc,
+            recognizer: textRecognizer,
+            repository: textRepo
+        )
+        self.searchTextUseCase = SearchByTextUseCase(repository: textRepo)
 
         // Show warning if we fell back to the stub embedder.
         if let warning = embedderResult.warningMessage {
@@ -347,6 +378,7 @@ final class PhotoMatchViewModel: ObservableObject {
     // MARK: - Detection Pipeline
 
     func onTapStartDetection() {
+        guard state.searchMode == .faces else { return }
         guard state.hasPhoto, !state.isBusy else { return }
 
         guard state.hasSelectedFaces else {
@@ -355,6 +387,34 @@ final class PhotoMatchViewModel: ObservableObject {
             return
         }
 
+        proceedWithPermissionFlow()
+    }
+
+    // MARK: - Search Mode / Text Search
+
+    func onChangeSearchMode(_ mode: SearchMode) {
+        guard state.searchMode != mode, !state.isBusy else { return }
+        state.searchMode = mode
+        // Switching modes clears the previous mode's results to avoid confusion.
+        clearResults()
+        state.isSelectionMode = false
+        clearMessage()
+    }
+
+    func onTapTextSearch() {
+        guard state.searchMode == .text, !state.isBusy else { return }
+        guard state.hasSearchText else {
+            state.userMessage = L10n.enterSearchText
+            state.showSettingsAction = false
+            return
+        }
+        proceedWithPermissionFlow()
+    }
+
+    /// Shared photo-permission gate used by both face and text searches. Routes
+    /// to `startPipelineWithAdCheck` (which runs the active pipeline) or the
+    /// appropriate permission dialog based on current authorization.
+    private func proceedWithPermissionFlow() {
         let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
         checkPhotoPermission()
         switch status {
@@ -384,10 +444,18 @@ final class PhotoMatchViewModel: ObservableObject {
         if shouldShowAd {
             rewardedAdManager.showAd { [weak self] in
                 guard let self else { return }
-                Task { await self.runPipeline() }
+                Task { await self.runActivePipeline() }
             }
         } else {
-            Task { await runPipeline() }
+            Task { await runActivePipeline() }
+        }
+    }
+
+    /// Runs whichever pipeline matches the current search mode.
+    private func runActivePipeline() async {
+        switch state.searchMode {
+        case .faces: await runPipeline()
+        case .text:  await runTextPipeline()
         }
     }
 
@@ -399,7 +467,7 @@ final class PhotoMatchViewModel: ObservableObject {
             checkPhotoPermission()
             switch result {
             case .authorized:
-                await runPipeline()
+                await runActivePipeline()
             case .limited:
                 state.showLimitedAccessDialog = true
             case .denied, .restricted:
@@ -414,7 +482,7 @@ final class PhotoMatchViewModel: ObservableObject {
     func onContinueWithLimitedAccess() {
         state.showLimitedAccessDialog = false
         checkPhotoPermission()
-        Task { await runPipeline() }
+        Task { await runActivePipeline() }
     }
 
     /// Called when user taps "Not now" on the denied dialog.
@@ -491,7 +559,89 @@ final class PhotoMatchViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Text Search Pipeline
+
+    private func runTextPipeline() async {
+        let lastIndexed = metadataStore.loadLastTextIndexedDate()
+        await runTextIndexing(since: lastIndexed)
+        await runTextSearch()
+    }
+
+    private func runTextIndexing(since: Date?) async {
+        state.isIndexing = true
+        state.indexingProgress = 0
+        state.indexingStatus = L10n.indexPreparing
+        defer { state.isIndexing = false }
+
+        do {
+            let result = try await indexTextUseCase.execute(since: since) { [weak self] progress in
+                Task { @MainActor [weak self] in
+                    self?.state.indexingProgress = progress.fraction
+                    self?.state.indexingStatus = progress.status
+                }
+            }
+            // Advance the timestamp whenever we actually scanned new assets, so
+            // text-less photos aren't re-OCR'd on every search.
+            if result.scannedNewAssets > 0 {
+                try? metadataStore.saveLastTextIndexedDate(Date())
+            }
+        } catch {
+            state.userMessage = L10n.indexingFailed(error.localizedDescription)
+        }
+    }
+
+    private func runTextSearch() async {
+        let query = state.searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return }
+
+        state.isSearching = true
+        defer { state.isSearching = false }
+
+        do {
+            let results = try await searchTextUseCase.execute(query: query)
+            let models = results.map {
+                MatchUiModel(
+                    assetIdentifier: $0.assetIdentifier,
+                    scorePercent: Int($0.similarityScore * 100)
+                )
+            }
+            state.allMatches = models
+            let firstPage = min(Self.pageSize, models.count)
+            state.matches = Array(models.prefix(firstPage))
+            state.visibleMatchCount = firstPage
+            state.hasMoreMatches = firstPage < models.count
+            if state.matches.isEmpty {
+                state.userMessage = L10n.noTextFound
+            }
+        } catch {
+            state.userMessage = error.localizedDescription
+        }
+    }
+
+    /// Clears the results grid and pagination state (shared by both modes).
+    private func clearResults() {
+        state.allMatches = []
+        state.matches = []
+        state.visibleMatchCount = 0
+        state.hasMoreMatches = false
+    }
+
     // MARK: - Match Selection
+
+    /// A result was tapped: in selection mode this toggles its selection,
+    /// otherwise it opens the full-screen image preview.
+    func onTapMatch(id: UUID) {
+        if state.isSelectionMode {
+            onToggleMatchSelection(id: id)
+        } else {
+            guard let match = state.matches.first(where: { $0.id == id }) else { return }
+            state.previewAssetIdentifier = match.assetIdentifier
+        }
+    }
+
+    func onDismissPreview() {
+        state.previewAssetIdentifier = nil
+    }
 
     func onToggleMatchSelection(id: UUID) {
         guard state.isSelectionMode else { return }

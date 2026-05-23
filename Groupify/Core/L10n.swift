@@ -54,6 +54,37 @@ enum L10n {
         return String(format: format, selected, total)
     }
 
+    // MARK: - Search Mode (Faces / Text)
+
+    nonisolated static var modeFaces: String {
+        NSLocalizedString("mode.faces", comment: "Faces search mode toggle label")
+    }
+    nonisolated static var modeText: String {
+        NSLocalizedString("mode.text", comment: "Text search mode toggle label")
+    }
+    nonisolated static var textSearchPlaceholder: String {
+        NSLocalizedString("text.searchPlaceholder", comment: "Placeholder for the text search field")
+    }
+    nonisolated static var textSearchTitle: String {
+        NSLocalizedString("text.searchTitle", comment: "Title above the text search field")
+    }
+    nonisolated static var textSearchButton: String {
+        NSLocalizedString("text.searchButton", comment: "Button to start a text search")
+    }
+    nonisolated static var enterSearchText: String {
+        NSLocalizedString("text.enterSearchText", comment: "Prompt when the search field is empty")
+    }
+    nonisolated static var noTextFound: String {
+        NSLocalizedString("text.noTextFound", comment: "No photos matched the typed text")
+    }
+
+    /// "Reading text 3 of 50…"
+    nonisolated static func readingTextProgress(current: Int, total: Int) -> String {
+        String(format: NSLocalizedString(
+            "text.readingProgress", comment: "OCR indexing X of Y status"
+        ), current, total)
+    }
+
     // MARK: - Buttons
 
     nonisolated static var takeAPhoto: String {

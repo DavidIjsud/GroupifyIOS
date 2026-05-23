@@ -14,6 +14,15 @@ protocol FaceEmbedder: Sendable {
     nonisolated func computeEmbedding(faceImage: CGImage) async throws -> FaceEmbedding
 }
 
+// MARK: - Text Recognition (OCR)
+
+/// Reads the visible printed/handwritten text in an image, on-device.
+/// Mirrors `FaceDetector`: implementations normalize internally and return the
+/// recognized text joined into a single string (newline-separated lines).
+protocol TextRecognizer: Sendable {
+    nonisolated func recognizeText(in image: UIImage) async throws -> String
+}
+
 // MARK: - Index Persistence
 
 protocol FaceIndexRepository: Sendable {
@@ -34,6 +43,17 @@ protocol PhotoGroupRepository: Sendable {
     nonisolated func saveAll(_ groups: [PhotoGroup]) async throws
 }
 
+// MARK: - Text Index Persistence
+
+/// Persists recognized text per photo asset (local reference store).
+/// Simpler than the face index — no binary embedding blob, just a JSON manifest
+/// of `assetIdentifier → recognized text`, deduped by `assetIdentifier`.
+protocol TextIndexRepository: Sendable {
+    nonisolated func loadRecords() async throws -> [IndexedTextRecord]
+    nonisolated func append(newRecords: [IndexedTextRecord]) async throws
+    nonisolated func clear() async throws
+}
+
 // MARK: - Photo Library Access
 
 protocol PhotoLibraryService: Sendable {
@@ -45,6 +65,9 @@ protocol PhotoLibraryService: Sendable {
     nonisolated func fetchAssets(newerThan date: Date?) -> [PHAsset]
     /// Loads a thumbnail for indexing.
     nonisolated func loadThumbnail(for asset: PHAsset, targetSize: CGSize) async throws -> UIImage
+    /// Loads a higher-quality (exact-resized) thumbnail. Used for OCR, where the
+    /// fast/degraded thumbnail would lose small text.
+    nonisolated func loadHighQualityThumbnail(for asset: PHAsset, targetSize: CGSize) async throws -> UIImage
     /// Loads a full-resolution image.
     nonisolated func loadFullImage(for asset: PHAsset) async throws -> UIImage
     /// Exports images to temp JPEG files for sharing. Returns file URLs.

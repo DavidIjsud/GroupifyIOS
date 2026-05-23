@@ -61,6 +61,35 @@ struct PhotoKitLibraryService: PhotoLibraryService, Sendable {
         }
     }
 
+    nonisolated func loadHighQualityThumbnail(
+        for asset: PHAsset,
+        targetSize: CGSize
+    ) async throws -> UIImage {
+        let options = PHImageRequestOptions()
+        options.isSynchronous = false
+        options.deliveryMode = .highQualityFormat
+        options.resizeMode = .exact
+        options.isNetworkAccessAllowed = true
+
+        return try await withCheckedThrowingContinuation { continuation in
+            var resumed = false
+            PHImageManager.default().requestImage(
+                for: asset,
+                targetSize: targetSize,
+                contentMode: .aspectFit,
+                options: options
+            ) { image, info in
+                guard !resumed else { return }
+                resumed = true
+                if let image {
+                    continuation.resume(returning: image)
+                } else {
+                    continuation.resume(throwing: PhotoKitError.thumbnailFailed)
+                }
+            }
+        }
+    }
+
     nonisolated func loadFullImage(for asset: PHAsset) async throws -> UIImage {
         let options = PHImageRequestOptions()
         options.isSynchronous = false

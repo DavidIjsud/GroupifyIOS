@@ -15,6 +15,16 @@
 "faces.clear" = "Clear";
 "faces.label" = "Face %d";
 
+// MARK: - Search Mode (Faces / Text)
+"mode.faces" = "Faces";
+"mode.text" = "Text";
+"text.searchTitle" = "Search by text";
+"text.searchPlaceholder" = "Search images that contain…";
+"text.searchButton" = "Search Photos";
+"text.enterSearchText" = "Type some text to search for.";
+"text.noTextFound" = "No photos with that text were found.";
+"text.readingProgress" = "Reading text %d of %d…";
+
 // MARK: - Buttons
 "button.takePhoto" = "Take a Photo";
 "button.startDetection" = "Start Detection";
