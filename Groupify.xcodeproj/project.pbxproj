@@ -12,6 +12,7 @@
 		E4B8561B2F7EEE1B006AAF88 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = E4B8561A2F7EEE1B006AAF88 /* FirebaseRemoteConfig */; };
 		E4D2019D2F74E603002FFE3D /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = E4D2019C2F74E603002FFE3D /* FirebaseAnalytics */; };
 		E4EACE0D2F7B507D00D3B87C /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = E4EACE0C2F7B507D00D3B87C /* FirebaseCrashlytics */; };
+		E4FBA5E12F90A1B200000001 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = E4FBA5E12F90A1B200000002 /* FirebaseMessaging */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,6 +95,7 @@
 				E4D2019D2F74E603002FFE3D /* FirebaseAnalytics in Frameworks */,
 				E45782352F5938BF00BC524B /* TensorFlowLiteSwift in Frameworks */,
 				E4B8561B2F7EEE1B006AAF88 /* FirebaseRemoteConfig in Frameworks */,
+				E4FBA5E12F90A1B200000001 /* FirebaseMessaging in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -168,6 +170,7 @@
 				E4EACE0C2F7B507D00D3B87C /* FirebaseCrashlytics */,
 				E47DE50C2F7E0AF400007E11 /* GoogleMobileAds */,
 				E4B8561A2F7EEE1B006AAF88 /* FirebaseRemoteConfig */,
+				E4FBA5E12F90A1B200000002 /* FirebaseMessaging */,
 			);
 			productName = Groupify;
 			productReference = E488F2842F57799A00E7FE85 /* Groupify.app */;
@@ -482,8 +485,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Groupify/Groupify.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = U8UVJJVY74;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -502,7 +506,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.2;
+				MARKETING_VERSION = 1.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.palmyrasoft.groupify;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -524,8 +528,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Groupify/Groupify.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = U8UVJJVY74;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -544,7 +549,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.2;
+				MARKETING_VERSION = 1.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.palmyrasoft.groupify;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -734,6 +739,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E4D2019B2F74E603002FFE3D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCrashlytics;
+		};
+		E4FBA5E12F90A1B200000002 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E4D2019B2F74E603002FFE3D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

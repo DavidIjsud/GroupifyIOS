@@ -4,6 +4,10 @@
 <dict>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-2389567920636267~6366896160</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>

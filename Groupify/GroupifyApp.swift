@@ -19,6 +19,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         FirebaseApp.configure()
         MobileAds.shared.start(completionHandler: nil)
         RemoteConfigManager.shared.fetchAndActivate()
+        configurePushNotifications(application)
 
         // Request App Tracking Transparency permission, then log the IDFA.
         // Delayed so the app's UI is presented first (ATT requires a visible window).

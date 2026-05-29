@@ -681,6 +681,7 @@ final class PhotoMatchViewModel: ObservableObject {
         state.showSettingsAction = false
         state.isSelectionMode = false
         onClearMatchSelection()
+        ReviewPromptManager.registerSuccessfulSaveAndRequestReview()
     }
 
     // MARK: - Pagination
