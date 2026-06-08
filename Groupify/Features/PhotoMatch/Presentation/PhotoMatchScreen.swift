@@ -13,16 +13,8 @@ private enum Theme {
 
 // MARK: - Screen
 
-private struct ShareButtonVisibleKey: PreferenceKey {
-    static let defaultValue: Bool = false
-    static func reduce(value: inout Bool, nextValue: () -> Bool) {
-        value = value || nextValue()
-    }
-}
-
 struct PhotoMatchScreen: View {
     @StateObject private var viewModel = PhotoMatchViewModel()
-    @State private var isShareButtonVisible = false
 
     /// Invoked when the user taps "Save to Group"; the host (RootTabView)
     /// presents the Create-Group sheet above the floating tab bar.
@@ -66,82 +58,26 @@ struct PhotoMatchScreen: View {
                     if !viewModel.state.matches.isEmpty {
                         resultsHeader
                         resultsGrid
-                        bottomActionStack
                     }
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
-                .padding(.bottom, 120) // clear the floating tab bar + action stack
-            }
-            .onPreferenceChange(ShareButtonVisibleKey.self) { visible in
-                isShareButtonVisible = visible
+                // Clear the floating tab bar, plus the floating action bar when results show.
+                .padding(.bottom, viewModel.state.matches.isEmpty ? 120 : 250)
             }
 
-            // Floating action buttons
-            if !viewModel.state.matches.isEmpty && !isShareButtonVisible {
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        VStack(spacing: 12) {
-                            // Clear selection button — above the share FAB
-                            if viewModel.state.hasSelectedMatches {
-                                Button {
-                                    viewModel.onClearMatchSelection()
-                                } label: {
-                                    Image(systemName: "xmark")
-                                        .font(.system(size: 16, weight: .bold))
-                                        .foregroundColor(.white)
-                                        .frame(width: 40, height: 40)
-                                        .background(Color.white.opacity(0.15))
-                                        .clipShape(Circle())
-                                        .overlay(Circle().stroke(Color.white.opacity(0.25), lineWidth: 1))
-                                }
-                                .transition(.scale.combined(with: .opacity))
-                            }
-
-                            // Share FAB
-                            Button {
-                                viewModel.onShareMatches()
-                            } label: {
-                                ZStack(alignment: .topTrailing) {
-                                    Image(systemName: "square.and.arrow.up")
-                                        .font(.system(size: 20, weight: .semibold))
-                                        .foregroundColor(.white)
-                                        .frame(width: 56, height: 56)
-                                        .background(Theme.accent)
-                                        .clipShape(Circle())
-                                        .shadow(color: Theme.accent.opacity(0.4), radius: 8, y: 4)
-
-                                    // Selection count badge
-                                    if viewModel.state.hasSelectedMatches {
-                                        Text("\(viewModel.state.selectedMatches.count)")
-                                            .font(.system(size: 11, weight: .bold))
-                                            .foregroundColor(.white)
-                                            .frame(minWidth: 20, minHeight: 20)
-                                            .background(Color.red)
-                                            .clipShape(Circle())
-                                            .offset(x: 4, y: -4)
-                                    }
-                                }
-                            }
-                        }
-                        .padding(.trailing, 20)
-                        .padding(.bottom, 96) // clear the floating tab bar
-                        .animation(.easeInOut(duration: 0.2), value: viewModel.state.hasSelectedMatches)
-                    }
-                }
-                .transition(.opacity)
-                .animation(.easeInOut(duration: 0.2), value: isShareButtonVisible)
+            // Floating Save / Share bar, pinned above the tab bar.
+            if !viewModel.state.matches.isEmpty {
+                floatingActionBar
             }
 
-            // Inline message banner
+            // Inline message banner — sits above the floating action bar when results show.
             if let message = viewModel.state.userMessage {
                 VStack {
                     Spacer()
                     messageBanner(message)
                         .padding(.horizontal, 20)
-                        .padding(.bottom, 96) // clear the floating tab bar
+                        .padding(.bottom, viewModel.state.matches.isEmpty ? 96 : 240)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
                 .animation(.easeInOut(duration: 0.25), value: viewModel.state.userMessage)
@@ -682,64 +618,79 @@ struct PhotoMatchScreen: View {
         }
     }
 
-    private var bottomActionStack: some View {
-        VStack(spacing: 10) {
-            if viewModel.state.hasSelectedMatches {
+    // MARK: - Floating Action Bar (Save / Share, pinned above the tab bar)
+
+    private var floatingActionBar: some View {
+        VStack {
+            Spacer()
+            VStack(spacing: 10) {
+                if viewModel.state.hasSelectedMatches {
+                    Button {
+                        viewModel.onClearMatchSelection()
+                    } label: {
+                        Text(L10n.clearSelection)
+                            .font(.subheadline.weight(.medium))
+                            .foregroundColor(Theme.secondaryText)
+                    }
+                }
+
+                // Save to Group — secondary outline, sits above Share.
                 Button {
-                    viewModel.onClearMatchSelection()
+                    requestSaveToGroup()
                 } label: {
-                    Text(L10n.clearSelection)
-                        .font(.subheadline.weight(.medium))
-                        .foregroundColor(Theme.secondaryText)
+                    HStack(spacing: 10) {
+                        Image(systemName: "folder.badge.plus")
+                        Text(L10n.saveToGroup).fontWeight(.semibold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .foregroundColor(.white)
+                    .background(Theme.accent.opacity(0.12))
+                    .cornerRadius(Theme.cornerRadius)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Theme.cornerRadius)
+                            .stroke(Theme.accent.opacity(0.45), lineWidth: 1.5)
+                    )
+                }
+
+                // Share — primary filled.
+                Button {
+                    viewModel.onShareMatches()
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "square.and.arrow.up")
+                        let count = viewModel.state.hasSelectedMatches
+                            ? viewModel.state.selectedMatches.count
+                            : viewModel.state.allMatches.count
+                        Text(L10n.shareMatches(count: count))
+                            .fontWeight(.semibold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .foregroundColor(.white)
+                    .background(Theme.accent)
+                    .cornerRadius(Theme.cornerRadius)
                 }
             }
-
-            // Save to Group — secondary outline, sits above Share.
-            Button {
-                requestSaveToGroup()
-            } label: {
-                HStack(spacing: 10) {
-                    Image(systemName: "folder.badge.plus")
-                    Text(L10n.saveToGroup).fontWeight(.semibold)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .foregroundColor(.white)
-                .background(Theme.accent.opacity(0.12))
-                .cornerRadius(Theme.cornerRadius)
-                .overlay(
-                    RoundedRectangle(cornerRadius: Theme.cornerRadius)
-                        .stroke(Theme.accent.opacity(0.45), lineWidth: 1.5)
+            .padding(.horizontal, 20)
+            .padding(.top, 20)
+            .padding(.bottom, 90) // float above the tab bar
+            .background(
+                // Fade scrolled content out behind the buttons; let touches pass
+                // through the fade so only the buttons are interactive.
+                LinearGradient(
+                    colors: [
+                        Theme.background.opacity(0),
+                        Theme.background.opacity(0.92),
+                        Theme.background
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
                 )
-            }
-
-            // Share — primary filled.
-            Button {
-                viewModel.onShareMatches()
-            } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "square.and.arrow.up")
-                    let count = viewModel.state.hasSelectedMatches
-                        ? viewModel.state.selectedMatches.count
-                        : viewModel.state.allMatches.count
-                    Text(L10n.shareMatches(count: count))
-                        .fontWeight(.semibold)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-                .foregroundColor(.white)
-                .background(Theme.accent)
-                .cornerRadius(Theme.cornerRadius)
-            }
+                .allowsHitTesting(false)
+            )
+            .animation(.easeInOut(duration: 0.2), value: viewModel.state.hasSelectedMatches)
         }
-        .background(
-            GeometryReader { geo in
-                Color.clear.preference(
-                    key: ShareButtonVisibleKey.self,
-                    value: geo.frame(in: .global).minY < UIScreen.main.bounds.height
-                )
-            }
-        )
     }
 
     /// Builds the Save-to-Group context from the current matches (selected or all)
