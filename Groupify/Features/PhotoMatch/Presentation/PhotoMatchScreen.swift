@@ -41,7 +41,8 @@ struct PhotoMatchScreen: View {
                             .animation(.easeInOut(duration: 0.25), value: viewModel.state.shouldShowWarningCard)
                     }
 
-                    if viewModel.state.searchMode == .faces {
+                    switch viewModel.state.searchMode {
+                    case .faces:
                         queryPhotoCard
                         if !viewModel.state.queryFaces.isEmpty {
                             faceChipsSection
@@ -50,9 +51,12 @@ struct PhotoMatchScreen: View {
                         }
                         takePhotoButton
                         startDetectionButton
-                    } else {
+                    case .text:
                         textSearchCard
                         textSearchButton
+                    case .scene:
+                        sceneSearchCard
+                        sceneSearchButton
                     }
 
                     if !viewModel.state.matches.isEmpty {
@@ -199,6 +203,7 @@ struct PhotoMatchScreen: View {
         HStack(spacing: 6) {
             modeButton(.faces, icon: "face.smiling", label: L10n.modeFaces)
             modeButton(.text, icon: "text.magnifyingglass", label: L10n.modeText)
+            modeButton(.scene, icon: "sparkles", label: L10n.modeScene)
         }
         .padding(4)
         .background(Theme.cardBackground)
@@ -278,6 +283,94 @@ struct PhotoMatchScreen: View {
             HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass")
                 Text(L10n.textSearchButton)
+                    .fontWeight(.bold)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .foregroundColor(.white)
+            .background(canSearch ? Theme.accent : Theme.accent.opacity(0.35))
+            .cornerRadius(Theme.cornerRadius)
+        }
+        .disabled(!canSearch)
+    }
+
+    // MARK: - Scene Search Card (describe the photo)
+
+    private var sceneSearchCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(L10n.sceneSearchTitle)
+                .font(.subheadline.weight(.semibold))
+                .foregroundColor(.white)
+
+            HStack(spacing: 10) {
+                Image(systemName: "sparkles")
+                    .foregroundColor(Theme.secondaryText)
+
+                TextField(L10n.sceneSearchPlaceholder, text: $viewModel.state.sceneDescription)
+                    .foregroundColor(.white)
+                    .tint(Theme.accent)
+                    .submitLabel(.search)
+                    .onSubmit { viewModel.onTapSceneSearch() }
+
+                if viewModel.state.hasSceneDescription {
+                    Button {
+                        viewModel.state.sceneDescription = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(Theme.secondaryText)
+                    }
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .background(Theme.background)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.white.opacity(0.08), lineWidth: 1)
+            )
+
+            // Example chips
+            Text(L10n.sceneExamplesHeader)
+                .font(.caption.weight(.medium))
+                .foregroundColor(Theme.secondaryText)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(L10n.sceneExamples, id: \.self) { example in
+                        Button {
+                            viewModel.onTapSceneExample(example)
+                        } label: {
+                            Text(example)
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(Capsule().fill(Theme.accent.opacity(0.15)))
+                                .overlay(
+                                    Capsule().stroke(Theme.accent.opacity(0.4), lineWidth: 1)
+                                )
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(viewModel.state.isBusy)
+                    }
+                }
+                .padding(.vertical, 2)
+            }
+        }
+        .padding(14)
+        .background(Theme.cardBackground)
+        .cornerRadius(Theme.cornerRadius)
+    }
+
+    private var sceneSearchButton: some View {
+        let canSearch = viewModel.state.hasSceneDescription && !viewModel.state.isBusy
+        return Button {
+            viewModel.onTapSceneSearch()
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "sparkles")
+                Text(L10n.sceneSearchButton)
                     .fontWeight(.bold)
             }
             .frame(maxWidth: .infinity)

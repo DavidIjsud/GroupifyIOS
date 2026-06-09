@@ -25,6 +25,22 @@
 "text.noTextFound" = "No photos with that text were found.";
 "text.readingProgress" = "Reading text %d of %d…";
 
+// MARK: - Search Mode (Scene / Describe the photo)
+"mode.scene" = "Describe";
+"scene.searchTitle" = "Describe the photo";
+"scene.searchPlaceholder" = "e.g. people on a beach at sunset";
+"scene.searchButton" = "Search Photos";
+"scene.enterDescription" = "Describe what's in the photo to search for.";
+"scene.noMatches" = "No photos matched that description.";
+"scene.examplesHeader" = "Try an example";
+"scene.scanningProgress" = "Scanning scenes %d of %d…";
+"scene.modelMissingWarning" = "Scene model not found. Using approximate matching (lower accuracy).";
+"scene.example.beach" = "people on a beach";
+"scene.example.redDress" = "a red dress";
+"scene.example.birthdayCake" = "birthday cake";
+"scene.example.sunset" = "sunset over mountains";
+"scene.example.dog" = "a dog playing";
+
 // MARK: - Buttons
 "button.takePhoto" = "Take a Photo";
 "button.startDetection" = "Start Detection";

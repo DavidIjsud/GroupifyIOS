@@ -25,6 +25,22 @@
 "text.noTextFound" = "No se encontraron fotos con ese texto.";
 "text.readingProgress" = "Leyendo texto %d de %d…";
 
+// MARK: - Modo de búsqueda (Escena / Describe la foto)
+"mode.scene" = "Describe";
+"scene.searchTitle" = "Describe la foto";
+"scene.searchPlaceholder" = "p. ej. personas en la playa al atardecer";
+"scene.searchButton" = "Buscar fotos";
+"scene.enterDescription" = "Describe lo que aparece en la foto que buscas.";
+"scene.noMatches" = "Ninguna foto coincide con esa descripción.";
+"scene.examplesHeader" = "Prueba un ejemplo";
+"scene.scanningProgress" = "Analizando escenas %d de %d…";
+"scene.modelMissingWarning" = "Modelo de escena no encontrado. Usando coincidencia aproximada (menor precisión).";
+"scene.example.beach" = "personas en la playa";
+"scene.example.redDress" = "un vestido rojo";
+"scene.example.birthdayCake" = "tarta de cumpleaños";
+"scene.example.sunset" = "atardecer sobre montañas";
+"scene.example.dog" = "un perro jugando";
+
 // MARK: - Buttons
 "button.takePhoto" = "Tomar una foto";
 "button.startDetection" = "Iniciar búsqueda";

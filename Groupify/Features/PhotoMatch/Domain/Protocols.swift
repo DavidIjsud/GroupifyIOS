@@ -23,6 +23,19 @@ protocol TextRecognizer: Sendable {
     nonisolated func recognizeText(in image: UIImage) async throws -> String
 }
 
+// MARK: - Scene Embedding (CLIP)
+
+/// Produces CLIP-style embeddings for semantic ("describe the scene") search.
+/// Both methods return L2-normalized vectors of the *same* dimension, so an
+/// image vector and a text vector can be compared by cosine similarity (a vDSP
+/// dot product, exactly like the face path).
+protocol SceneEmbedder: Sendable {
+    /// Embeds a photo (or its thumbnail) into the shared CLIP space.
+    nonisolated func embedImage(_ image: CGImage) async throws -> [Float]
+    /// Embeds a free-text description into the shared CLIP space.
+    nonisolated func embedText(_ text: String) async throws -> [Float]
+}
+
 // MARK: - Index Persistence
 
 protocol FaceIndexRepository: Sendable {
@@ -51,6 +64,18 @@ protocol PhotoGroupRepository: Sendable {
 protocol TextIndexRepository: Sendable {
     nonisolated func loadRecords() async throws -> [IndexedTextRecord]
     nonisolated func append(newRecords: [IndexedTextRecord]) async throws
+    nonisolated func clear() async throws
+}
+
+// MARK: - Scene Index Persistence
+
+/// Persists one CLIP image embedding per photo asset, deduped by `assetIdentifier`.
+/// Mirrors `FaceIndexRepository` (binary blob + JSON manifest) but stores one
+/// vector per asset instead of one per face.
+protocol SceneIndexRepository: Sendable {
+    nonisolated func load() async throws -> [IndexedScene]
+    nonisolated func loadRecords() async throws -> [IndexedSceneRecord]
+    nonisolated func append(newScenes: [IndexedScene]) async throws
     nonisolated func clear() async throws
 }
 

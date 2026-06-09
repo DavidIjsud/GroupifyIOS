@@ -13,10 +13,12 @@ enum PhotoPermissionWarning {
 
 // MARK: - Search Mode
 
-/// Whether the Home screen searches by an uploaded face photo or by typed text.
+/// Whether the Home screen searches by an uploaded face photo, by typed text
+/// (OCR), or by a free-text scene description (CLIP).
 enum SearchMode {
     case faces
     case text
+    case scene
 }
 
 // MARK: - UI Models
@@ -39,9 +41,12 @@ struct QueryFaceUiModel: Identifiable {
 // MARK: - UI State
 
 struct PhotoMatchUiState {
-    // Search mode (face photo vs. typed text)
+    // Search mode (face photo vs. typed text vs. scene description)
     var searchMode: SearchMode = .faces
     var searchText: String = ""
+    /// Kept separate from `searchText` so the OCR and scene text fields don't
+    /// clobber each other when switching modes.
+    var sceneDescription: String = ""
 
     // Photo picking
     var selectedImage: UIImage?
@@ -65,6 +70,9 @@ struct PhotoMatchUiState {
     // Search
     var isSearching: Bool = false
     var matchSensitivity: Float = 0.40
+    /// CLIP text↔image scores run lower than face↔face, so the scene threshold is
+    /// independent and tuned lower. (Tune on-device.)
+    var sceneSensitivity: Float = 0.20
     var allMatches: [MatchUiModel] = []
     var matches: [MatchUiModel] = []
     var visibleMatchCount: Int = 0
@@ -95,6 +103,9 @@ struct PhotoMatchUiState {
     var hasPhoto: Bool { selectedImage != nil }
     var hasSearchText: Bool {
         !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+    var hasSceneDescription: Bool {
+        !sceneDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     var isCameraAvailable: Bool { UIImagePickerController.isSourceTypeAvailable(.camera) }
     var isBusy: Bool { isIndexing || isSearching || isFaceLoading }
@@ -132,8 +143,14 @@ final class PhotoMatchViewModel: ObservableObject {
     private let detectQueryFacesUseCase: DetectQueryFacesUseCase
     private let indexTextUseCase: IndexLibraryTextUseCase
     private let searchTextUseCase: SearchByTextUseCase
+    private let indexSceneUseCase: IndexLibrarySceneUseCase
+    private let searchSceneUseCase: SearchBySceneUseCase
     private let repository: any FaceIndexRepository
     private let textRepository: any TextIndexRepository
+    private let sceneRepository: any SceneIndexRepository
+    /// The vector space the scene index should be in (e.g. "mobileclip_s2" or
+    /// "stub"). If the stored index was built by a different model, it's rebuilt.
+    private let sceneModelId: String
     private let photoService: any PhotoLibraryService
     private let metadataStore = IndexMetadataStore()
     private let rewardedAdManager = RewardedAdManager(
@@ -162,9 +179,14 @@ final class PhotoMatchViewModel: ObservableObject {
         let photoSvc = PhotoKitLibraryService()
         let textRecognizer = VisionTextRecognizer()
         let textRepo = FileTextIndexRepository()
+        let sceneEmbedderResult = SceneEmbedderFactory.make()
+        let sceneEmbedder = sceneEmbedderResult.embedder
+        let sceneRepo = FileSceneIndexRepository()
 
         self.repository = repo
         self.textRepository = textRepo
+        self.sceneRepository = sceneRepo
+        self.sceneModelId = sceneEmbedderResult.modelId
         self.photoService = photoSvc
         self.detectQueryFacesUseCase = DetectQueryFacesUseCase(detector: detector)
         self.indexUseCase = IndexLibraryUseCase(
@@ -183,10 +205,21 @@ final class PhotoMatchViewModel: ObservableObject {
             repository: textRepo
         )
         self.searchTextUseCase = SearchByTextUseCase(repository: textRepo)
+        self.indexSceneUseCase = IndexLibrarySceneUseCase(
+            photoService: photoSvc,
+            embedder: sceneEmbedder,
+            repository: sceneRepo
+        )
+        self.searchSceneUseCase = SearchBySceneUseCase(
+            embedder: sceneEmbedder,
+            repository: sceneRepo
+        )
 
-        // Show warning if we fell back to the stub embedder.
+        // Show warning if we fell back to a stub embedder (face or scene).
         if let warning = embedderResult.warningMessage {
             state.userMessage = warning
+        } else if let sceneWarning = sceneEmbedderResult.warningMessage {
+            state.userMessage = sceneWarning
         }
 
         // Observe Remote Config for ad visibility.
@@ -411,6 +444,23 @@ final class PhotoMatchViewModel: ObservableObject {
         proceedWithPermissionFlow()
     }
 
+    func onTapSceneSearch() {
+        guard state.searchMode == .scene, !state.isBusy else { return }
+        guard state.hasSceneDescription else {
+            state.userMessage = L10n.enterSceneDescription
+            state.showSettingsAction = false
+            return
+        }
+        proceedWithPermissionFlow()
+    }
+
+    /// Sets the scene description from a tappable example chip and runs the search.
+    func onTapSceneExample(_ text: String) {
+        guard !state.isBusy else { return }
+        state.sceneDescription = text
+        onTapSceneSearch()
+    }
+
     /// Shared photo-permission gate used by both face and text searches. Routes
     /// to `startPipelineWithAdCheck` (which runs the active pipeline) or the
     /// appropriate permission dialog based on current authorization.
@@ -456,6 +506,7 @@ final class PhotoMatchViewModel: ObservableObject {
         switch state.searchMode {
         case .faces: await runPipeline()
         case .text:  await runTextPipeline()
+        case .scene: await runScenePipeline()
         }
     }
 
@@ -612,6 +663,81 @@ final class PhotoMatchViewModel: ObservableObject {
             state.hasMoreMatches = firstPage < models.count
             if state.matches.isEmpty {
                 state.userMessage = L10n.noTextFound
+            }
+        } catch {
+            state.userMessage = error.localizedDescription
+        }
+    }
+
+    // MARK: - Scene Search Pipeline (CLIP)
+
+    private func runScenePipeline() async {
+        await reconcileSceneModelIfNeeded()
+        let lastIndexed = metadataStore.loadLastSceneIndexedDate()
+        await runSceneIndexing(since: lastIndexed)
+        await runSceneSearch()
+    }
+
+    /// If the scene index was built by a different MobileCLIP model than the one
+    /// now active (e.g. after swapping s0→s2, or stub→real), wipe it so we never
+    /// compare vectors from different CLIP spaces. The next scan re-embeds fresh.
+    private func reconcileSceneModelIfNeeded() async {
+        guard metadataStore.loadSceneModelId() != sceneModelId else { return }
+        #if DEBUG
+        print("[PhotoMatchViewModel] Scene model changed → rebuilding index for \(sceneModelId)")
+        #endif
+        try? await sceneRepository.clear()
+        try? metadataStore.resetSceneIndex(forModelId: sceneModelId)
+    }
+
+    private func runSceneIndexing(since: Date?) async {
+        state.isIndexing = true
+        state.indexingProgress = 0
+        state.indexingStatus = L10n.indexPreparing
+        defer { state.isIndexing = false }
+
+        do {
+            let result = try await indexSceneUseCase.execute(since: since) { [weak self] progress in
+                Task { @MainActor [weak self] in
+                    self?.state.indexingProgress = progress.fraction
+                    self?.state.indexingStatus = progress.status
+                }
+            }
+            // Advance the timestamp whenever we scanned new assets, so already-seen
+            // photos aren't re-embedded on every search.
+            if result.scannedNewAssets > 0 {
+                try? metadataStore.saveLastSceneIndexedDate(Date())
+            }
+        } catch {
+            state.userMessage = L10n.indexingFailed(error.localizedDescription)
+        }
+    }
+
+    private func runSceneSearch() async {
+        let query = state.sceneDescription.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return }
+
+        state.isSearching = true
+        defer { state.isSearching = false }
+
+        do {
+            let results = try await searchSceneUseCase.execute(
+                description: query,
+                threshold: state.sceneSensitivity
+            )
+            let models = results.map {
+                MatchUiModel(
+                    assetIdentifier: $0.assetIdentifier,
+                    scorePercent: Int($0.similarityScore * 100)
+                )
+            }
+            state.allMatches = models
+            let firstPage = min(Self.pageSize, models.count)
+            state.matches = Array(models.prefix(firstPage))
+            state.visibleMatchCount = firstPage
+            state.hasMoreMatches = firstPage < models.count
+            if state.matches.isEmpty {
+                state.userMessage = L10n.noSceneMatches
             }
         } catch {
             state.userMessage = error.localizedDescription

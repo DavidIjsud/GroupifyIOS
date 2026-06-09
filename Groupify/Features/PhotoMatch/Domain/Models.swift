@@ -59,6 +59,25 @@ struct IndexedTextRecord: Codable, Sendable {
     let dateIndexed: Date
 }
 
+// MARK: - Scene Index (CLIP "describe the scene")
+
+/// One CLIP image embedding for a whole photo asset (no faces involved).
+/// Used by the semantic "describe the scene" search mode.
+struct IndexedScene: Sendable {
+    let assetIdentifier: String
+    let embedding: [Float]   // 512 elements, L2-normalized
+    let dateIndexed: Date
+}
+
+/// Lightweight Codable record for the scene manifest (`scene_index.json`).
+/// The embedding itself lives in the binary blob; this stores its byte offset.
+struct IndexedSceneRecord: Codable, Sendable {
+    let assetIdentifier: String
+    let dateIndexed: Date
+    /// Byte offset into `scene_embeddings.bin` (index * embeddingDim * 4).
+    let embeddingOffset: Int
+}
+
 // MARK: - Query Faces
 
 struct QueryFace: Sendable {

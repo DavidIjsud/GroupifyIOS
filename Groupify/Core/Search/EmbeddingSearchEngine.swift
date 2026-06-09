@@ -88,6 +88,48 @@ enum EmbeddingSearchEngine {
         return results
     }
 
+    // MARK: - Scene Search (CLIP)
+
+    /// Returns all scene matches whose cosine similarity to the query vector meets
+    /// the threshold, sorted descending. Unlike the face path this is a single
+    /// query vector compared against exactly one vector per asset.
+    ///
+    /// - Parameters:
+    ///   - queryVector: The L2-normalized CLIP text embedding of the description.
+    ///   - indexedScenes: The full scene index loaded from disk.
+    ///   - threshold: Minimum cosine similarity (0…1) to include a result.
+    /// - Complexity: O(N) where N = index size.
+    nonisolated static func sceneMatchesAboveThreshold(
+        queryVector: [Float],
+        indexedScenes: [IndexedScene],
+        threshold: Float
+    ) -> [PhotoMatch] {
+        guard !queryVector.isEmpty, !indexedScenes.isEmpty else { return [] }
+
+        #if DEBUG
+        print("[EmbeddingSearchEngine] Scene query — indexed scenes: \(indexedScenes.count), threshold: \(threshold)")
+        #endif
+
+        var results = [PhotoMatch]()
+        results.reserveCapacity(indexedScenes.count / 2)
+        for scene in indexedScenes {
+            let score = max(0, vDSPDotProduct(queryVector, scene.embedding))
+            if score >= threshold {
+                results.append(PhotoMatch(
+                    assetIdentifier: scene.assetIdentifier,
+                    similarityScore: score
+                ))
+            }
+        }
+        results.sort { $0.similarityScore > $1.similarityScore }
+
+        #if DEBUG
+        print("[EmbeddingSearchEngine] Scene results above threshold: \(results.count)")
+        #endif
+
+        return results
+    }
+
     // MARK: - vDSP Dot Product
 
     /// Computes dot product of two Float arrays using Accelerate.

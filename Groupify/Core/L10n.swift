@@ -85,6 +85,51 @@ enum L10n {
         ), current, total)
     }
 
+    // MARK: - Search Mode (Scene / CLIP)
+
+    nonisolated static var modeScene: String {
+        NSLocalizedString("mode.scene", comment: "Scene (describe the photo) search mode toggle label")
+    }
+    nonisolated static var sceneSearchTitle: String {
+        NSLocalizedString("scene.searchTitle", comment: "Title above the scene description field")
+    }
+    nonisolated static var sceneSearchPlaceholder: String {
+        NSLocalizedString("scene.searchPlaceholder", comment: "Placeholder for the scene description field")
+    }
+    nonisolated static var sceneSearchButton: String {
+        NSLocalizedString("scene.searchButton", comment: "Button to start a scene search")
+    }
+    nonisolated static var enterSceneDescription: String {
+        NSLocalizedString("scene.enterDescription", comment: "Prompt when the scene field is empty")
+    }
+    nonisolated static var noSceneMatches: String {
+        NSLocalizedString("scene.noMatches", comment: "No photos matched the scene description")
+    }
+    nonisolated static var sceneExamplesHeader: String {
+        NSLocalizedString("scene.examplesHeader", comment: "Header above the example chips")
+    }
+    nonisolated static var sceneModelMissingWarning: String {
+        NSLocalizedString("scene.modelMissingWarning", comment: "Shown when MobileCLIP models are absent (degraded scene matching)")
+    }
+
+    /// "Scanning scenes 3 of 50…"
+    nonisolated static func scanningScenesProgress(current: Int, total: Int) -> String {
+        String(format: NSLocalizedString(
+            "scene.scanningProgress", comment: "CLIP scene indexing X of Y status"
+        ), current, total)
+    }
+
+    /// The tappable example descriptions shown under the scene field.
+    nonisolated static var sceneExamples: [String] {
+        [
+            NSLocalizedString("scene.example.beach", comment: "Scene example chip"),
+            NSLocalizedString("scene.example.redDress", comment: "Scene example chip"),
+            NSLocalizedString("scene.example.birthdayCake", comment: "Scene example chip"),
+            NSLocalizedString("scene.example.sunset", comment: "Scene example chip"),
+            NSLocalizedString("scene.example.dog", comment: "Scene example chip")
+        ]
+    }
+
     // MARK: - Buttons
 
     nonisolated static var takeAPhoto: String {

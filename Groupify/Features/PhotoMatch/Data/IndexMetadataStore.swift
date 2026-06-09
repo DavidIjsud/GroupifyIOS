@@ -10,6 +10,11 @@ struct IndexMetadataStore: Sendable {
         var lastIndexedAt: Date?
         /// Last-indexed timestamp for the OCR text index (independent of faces).
         var lastTextIndexedAt: Date?
+        /// Last-indexed timestamp for the CLIP scene index (independent of the others).
+        var lastSceneIndexedAt: Date?
+        /// Which MobileCLIP variant built the scene index (e.g. "mobileclip_s2").
+        /// A mismatch with the active model forces a one-time rebuild.
+        var sceneModelId: String?
     }
 
     // MARK: - Public — Face index
@@ -33,6 +38,31 @@ struct IndexMetadataStore: Sendable {
     nonisolated func saveLastTextIndexedDate(_ date: Date) throws {
         var metadata = loadMetadata() ?? Metadata()
         metadata.lastTextIndexedAt = date
+        try write(metadata)
+    }
+
+    // MARK: - Public — Scene (CLIP) index
+
+    nonisolated func loadLastSceneIndexedDate() -> Date? {
+        loadMetadata()?.lastSceneIndexedAt
+    }
+
+    nonisolated func saveLastSceneIndexedDate(_ date: Date) throws {
+        var metadata = loadMetadata() ?? Metadata()
+        metadata.lastSceneIndexedAt = date
+        try write(metadata)
+    }
+
+    nonisolated func loadSceneModelId() -> String? {
+        loadMetadata()?.sceneModelId
+    }
+
+    /// Records which model now owns the scene index and resets its incremental
+    /// timestamp, so the next scan re-embeds the whole library in the new space.
+    nonisolated func resetSceneIndex(forModelId modelId: String) throws {
+        var metadata = loadMetadata() ?? Metadata()
+        metadata.sceneModelId = modelId
+        metadata.lastSceneIndexedAt = nil
         try write(metadata)
     }
 
